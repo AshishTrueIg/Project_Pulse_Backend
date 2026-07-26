@@ -35,6 +35,10 @@ Useful URLs:
 - API health: `http://localhost:4001/api/v1/health`
 - Swagger UI: `http://localhost:4001/api-docs`
 
+## Database design
+
+- [Version 1 entity-relationship diagram](docs/DATABASE_ERD.md)
+
 ## Initial domain modules
 
 - Authentication, users, roles, and project-scoped authorization
@@ -45,4 +49,3 @@ Useful URLs:
 - Employee feedback, acknowledgement, and improvement goals
 - Manager-only contracts, billing, collections, cost, and margin
 - Notifications and audit history
-
