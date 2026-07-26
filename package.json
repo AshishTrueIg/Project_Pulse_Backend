@@ -25,27 +25,27 @@
     "db:setup": "npm run db:create && npm run db:migrate && npm run db:seed"
   },
   "dependencies": {
-    "ajv": "8.8.2",
+    "ajv": "^8.20.0",
     "ajv-formats": "2.1.1",
-    "bcrypt": "5.0.1",
-    "body-parser": "1.20.3",
+    "bcrypt": "^6.0.0",
+    "body-parser": "^1.20.6",
     "compression": "^1.8.1",
-    "convict": "6.2.4",
+    "convict": "^6.2.5",
     "cookie-parser": "^1.4.7",
     "cors": "2.8.5",
     "dotenv": "10.0.0",
-    "express": "4.21.2",
+    "express": "^4.22.2",
     "express-validator": "6.14.0",
     "helmet": "6.0.1",
     "http-status-codes": "2.2.0",
     "jsonwebtoken": "9.0.2",
-    "morgan": "1.10.1",
+    "morgan": "^1.11.0",
     "nanoid": "3.3.11",
     "pg": "8.7.1",
     "pg-hstore": "2.3.4",
     "pino": "9.5.0",
     "pino-pretty": "11.3.0",
-    "sequelize": "6.12.0-beta.3",
+    "sequelize": "^6.37.8",
     "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
@@ -61,6 +61,10 @@
     "sequelize-cli": "6.3.0",
     "standard": "16.0.4",
     "supertest": "7.1.4"
+  },
+  "overrides": {
+    "path-to-regexp": "0.1.13",
+    "uuid": "11.1.1"
   },
   "standard": {
     "parser": "@babel/eslint-parser",
