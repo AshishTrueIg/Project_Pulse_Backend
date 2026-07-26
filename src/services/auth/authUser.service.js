@@ -14,10 +14,11 @@ const authUserInclude = [
   }
 ]
 
-const findAuthUser = where =>
+const findAuthUser = (where, options = {}) =>
   User.findOne({
     where,
-    include: authUserInclude
+    include: authUserInclude,
+    ...options
   })
 
 const serializeAuthUser = user => ({

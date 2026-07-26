@@ -2,34 +2,53 @@ import jwt from 'jsonwebtoken'
 
 import config from '@src/configs/app.config'
 import { RefreshSession } from '@src/db/models'
+import BaseHandler from '@src/libs/baseHandler'
 
 import { tokenHashesMatch } from './authToken.service'
 
-const logout = async refreshToken => {
-  if (!refreshToken) return
+class LogoutService extends BaseHandler {
+  async run () {
+    const { refreshToken } = this.args
 
-  let payload
+    if (!refreshToken) return null
 
-  try {
-    payload = jwt.verify(refreshToken, config.get('jwt.refreshSecret'))
-  } catch (error) {
-    return
-  }
+    let payload
 
-  if (payload.type !== 'refresh' || !payload.sessionId) return
-
-  const session = await RefreshSession.findOne({
-    where: {
-      id: payload.sessionId,
-      userId: payload.sub
+    try {
+      payload = jwt.verify(refreshToken, config.get('jwt.refreshSecret'))
+    } catch (error) {
+      return null
     }
-  })
 
-  if (!session || session.revokedAt || !tokenHashesMatch(refreshToken, session.tokenHash)) return
+    if (payload.type !== 'refresh' || !payload.sessionId) return null
 
-  await session.update({
-    revokedAt: new Date()
-  })
+    const session = await RefreshSession.findOne({
+      where: {
+        id: payload.sessionId,
+        userId: payload.sub
+      },
+      transaction: this.dbTransaction
+    })
+
+    if (
+      !session ||
+      session.revokedAt ||
+      !tokenHashesMatch(refreshToken, session.tokenHash)
+    ) {
+      return null
+    }
+
+    await session.update(
+      {
+        revokedAt: new Date()
+      },
+      {
+        transaction: this.dbTransaction
+      }
+    )
+
+    return null
+  }
 }
 
-export default logout
+export default LogoutService

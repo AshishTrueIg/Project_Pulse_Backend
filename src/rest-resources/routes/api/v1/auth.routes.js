@@ -1,12 +1,7 @@
 import { Router } from 'express'
 import { body } from 'express-validator'
 
-import {
-  loginController,
-  logoutController,
-  meController,
-  refreshController
-} from '@src/rest-resources/controllers/auth.controller'
+import AuthController from '@src/rest-resources/controllers/auth.controller'
 import asyncHandler from '@src/rest-resources/middlewares/asyncHandler.middleware'
 import authenticate from '@src/rest-resources/middlewares/authenticate.middleware'
 import validateRequest from '@src/rest-resources/middlewares/validateRequest.middleware'
@@ -20,10 +15,10 @@ router.post(
     body('password').isString().isLength({ min: 8 }).withMessage('Password must contain at least 8 characters')
   ],
   validateRequest,
-  asyncHandler(loginController)
+  AuthController.login
 )
-router.post('/refresh', asyncHandler(refreshController))
-router.post('/logout', asyncHandler(logoutController))
-router.get('/me', asyncHandler(authenticate), asyncHandler(meController))
+router.post('/refresh', AuthController.refresh)
+router.post('/logout', AuthController.logout)
+router.get('/me', asyncHandler(authenticate), AuthController.me)
 
 export default router

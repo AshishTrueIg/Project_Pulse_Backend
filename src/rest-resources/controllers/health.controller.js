@@ -1,11 +1,16 @@
-import { StatusCodes } from 'http-status-codes'
+import { sendResponse } from '@src/helpers/response.helpers'
+import GetHealthService from '@src/services/health/getHealth.service'
 
-import getHealth from '@src/services/health/getHealth.service'
+class HealthController {
+  static async getHealth (request, response, next) {
+    try {
+      const result = await GetHealthService.execute({}, request.context)
 
-const healthController = (request, response) => {
-  response.status(StatusCodes.OK).json({
-    data: getHealth()
-  })
+      sendResponse({ response }, result)
+    } catch (error) {
+      next(error)
+    }
+  }
 }
 
-export default healthController
+export default HealthController

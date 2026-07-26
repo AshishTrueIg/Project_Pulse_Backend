@@ -43,14 +43,15 @@ const issueSessionTokens = async (user, context, transaction) => {
   const sessionId = randomUUID()
   const refreshToken = createRefreshToken(user, sessionId)
   const refreshPayload = jwt.decode(refreshToken)
+  const requestContext = context.request || context
 
   await RefreshSession.create(
     {
       id: sessionId,
       userId: user.id,
       tokenHash: hashToken(refreshToken),
-      userAgent: context.userAgent || null,
-      ipAddress: context.ipAddress || null,
+      userAgent: requestContext.userAgent || null,
+      ipAddress: requestContext.ipAddress || null,
       expiresAt: new Date(refreshPayload.exp * 1000)
     },
     {

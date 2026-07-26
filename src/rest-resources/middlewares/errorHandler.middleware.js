@@ -17,9 +17,15 @@ const errorHandler = (error, request, response, next) => {
   )
 
   response.status(statusCode).json({
+    success: false,
     error: {
-      message: statusCode === StatusCodes.INTERNAL_SERVER_ERROR ? 'Internal server error' : error.message,
-      details: error.details || null
+      code: error.code || 'INTERNAL_ERROR',
+      message:
+        statusCode === StatusCodes.INTERNAL_SERVER_ERROR
+          ? 'Internal server error'
+          : error.message,
+      details: error.details || null,
+      traceId: request.context?.traceId || null
     }
   })
 }

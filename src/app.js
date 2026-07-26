@@ -9,6 +9,7 @@ import swaggerUi from 'swagger-ui-express'
 
 import config from '@src/configs/app.config'
 import errorHandler from '@src/rest-resources/middlewares/errorHandler.middleware'
+import contextMiddleware from '@src/rest-resources/middlewares/context.middleware'
 import notFoundHandler from '@src/rest-resources/middlewares/notFound.middleware'
 import apiRoutes from '@src/rest-resources/routes/api'
 import swaggerDocument from '@src/swagger/document'
@@ -27,6 +28,7 @@ app.use(
 app.use(bodyParser.json({ limit: '2mb' }))
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(cookieParser())
+app.use(contextMiddleware)
 app.use(morgan(config.get('env') === 'production' ? 'combined' : 'dev'))
 
 if (config.get('swagger.enabled')) {

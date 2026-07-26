@@ -67,6 +67,8 @@ const authenticate = async (request, response, next) => {
     roles,
     permissions
   }
+  request.context.auth = request.auth
+  request.context.currentUser = user
 
   next()
 }

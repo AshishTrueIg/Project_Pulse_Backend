@@ -1,77 +1,64 @@
-import { StatusCodes } from 'http-status-codes'
+import {
+  getRefreshToken,
+  sendLogoutResponse,
+  sendSessionResponse
+} from '@src/helpers/sessionResponse.helpers'
+import { sendResponse } from '@src/helpers/response.helpers'
+import GetCurrentUserService from '@src/services/auth/getCurrentUser.service'
+import LoginService from '@src/services/auth/login.service'
+import LogoutService from '@src/services/auth/logout.service'
+import RefreshAccessService from '@src/services/auth/refreshAccess.service'
 
-import config from '@src/configs/app.config'
-import login from '@src/services/auth/login.service'
-import logout from '@src/services/auth/logout.service'
-import refreshAccess from '@src/services/auth/refreshAccess.service'
-import { serializeAuthUser } from '@src/services/auth/authUser.service'
+class AuthController {
+  static async login (request, response, next) {
+    try {
+      const result = await LoginService.execute(request.body, request.context)
 
-const getRequestContext = request => ({
-  ipAddress: request.ip,
-  userAgent: request.get('user-agent')
-})
-
-const refreshCookieOptions = {
-  httpOnly: true,
-  maxAge: config.get('jwt.refreshCookieMaxAgeMs'),
-  path: '/api/v1/auth',
-  sameSite: 'strict',
-  secure: config.get('env') === 'production'
-}
-
-const setRefreshCookie = (response, refreshToken) => {
-  response.cookie(config.get('jwt.refreshCookieName'), refreshToken, refreshCookieOptions)
-}
-
-const clearRefreshCookie = response => {
-  const { maxAge, ...clearCookieOptions } = refreshCookieOptions
-
-  response.clearCookie(config.get('jwt.refreshCookieName'), clearCookieOptions)
-}
-
-const loginController = async (request, response) => {
-  const result = await login(request.body, getRequestContext(request))
-
-  setRefreshCookie(response, result.refreshToken)
-
-  response.status(StatusCodes.OK).json({
-    data: {
-      accessToken: result.accessToken,
-      user: result.user
+      sendSessionResponse({ response }, result)
+    } catch (error) {
+      next(error)
     }
-  })
-}
+  }
 
-const refreshController = async (request, response) => {
-  const refreshToken = request.cookies[config.get('jwt.refreshCookieName')]
+  static async refresh (request, response, next) {
+    try {
+      const result = await RefreshAccessService.execute(
+        {
+          refreshToken: getRefreshToken(request)
+        },
+        request.context
+      )
 
-  const result = await refreshAccess(refreshToken, getRequestContext(request))
-
-  setRefreshCookie(response, result.refreshToken)
-
-  response.status(StatusCodes.OK).json({
-    data: {
-      accessToken: result.accessToken,
-      user: result.user
+      sendSessionResponse({ response }, result)
+    } catch (error) {
+      next(error)
     }
-  })
-}
+  }
 
-const logoutController = async (request, response) => {
-  const refreshToken = request.cookies[config.get('jwt.refreshCookieName')]
+  static async logout (request, response, next) {
+    try {
+      await LogoutService.execute(
+        {
+          refreshToken: getRefreshToken(request)
+        },
+        request.context
+      )
 
-  await logout(refreshToken)
-  clearRefreshCookie(response)
-
-  response.status(StatusCodes.NO_CONTENT).send()
-}
-
-const meController = async (request, response) => {
-  response.status(StatusCodes.OK).json({
-    data: {
-      user: serializeAuthUser(request.currentUser)
+      sendLogoutResponse({ response })
+    } catch (error) {
+      next(error)
     }
-  })
+  }
+
+  static async me (request, response, next) {
+    try {
+      const result = await GetCurrentUserService.execute({}, request.context)
+
+      sendResponse({ response }, result)
+    } catch (error) {
+      next(error)
+    }
+  }
 }
 
-export { loginController, logoutController, meController, refreshController }
+export default AuthController

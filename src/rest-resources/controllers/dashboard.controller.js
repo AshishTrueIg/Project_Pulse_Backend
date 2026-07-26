@@ -1,13 +1,16 @@
-import { StatusCodes } from 'http-status-codes'
+import { sendResponse } from '@src/helpers/response.helpers'
+import GetManagerOverviewService from '@src/services/dashboard/getManagerOverview.service'
 
-import getManagerOverview from '@src/services/dashboard/getManagerOverview.service'
+class DashboardController {
+  static async getOverview (request, response, next) {
+    try {
+      const result = await GetManagerOverviewService.execute({}, request.context)
 
-const getOverviewController = async (request, response) => {
-  const overview = await getManagerOverview(request.auth)
-
-  response.status(StatusCodes.OK).json({
-    data: overview
-  })
+      sendResponse({ response }, result)
+    } catch (error) {
+      next(error)
+    }
+  }
 }
 
-export default getOverviewController
+export default DashboardController
