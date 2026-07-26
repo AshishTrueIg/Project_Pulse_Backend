@@ -38,6 +38,8 @@ Useful URLs:
 ## Database design
 
 - [Version 1 entity-relationship diagram](docs/DATABASE_ERD.md)
+- [Interactive local ERD viewer](docs/database-erd-viewer.html)
+- [Standalone ERD SVG](docs/DATABASE_ERD.svg)
 
 ## Initial domain modules
 

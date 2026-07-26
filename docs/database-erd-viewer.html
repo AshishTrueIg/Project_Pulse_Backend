@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Project Management Platform — Database ERD</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --brand: #4f46e5;
+        --brand-dark: #4338ca;
+        --canvas: #e7eaf0;
+        --surface: #ffffff;
+        --surface-subtle: #f8fafc;
+        --text: #0f172a;
+        --text-secondary: #475569;
+        --border: #e2e8f0;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+      }
+
+      body {
+        display: grid;
+        grid-template-rows: auto 1fr;
+        overflow: hidden;
+        color: var(--text);
+        background: var(--canvas);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      .topbar {
+        position: relative;
+        z-index: 10;
+        display: flex;
+        min-height: 66px;
+        padding: 10px 18px;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        border-bottom: 1px solid #1e293b;
+        color: #fff;
+        background: #0f172a;
+        box-shadow: 0 8px 24px rgb(15 23 42 / 0.18);
+      }
+
+      .title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .mark {
+        display: grid;
+        width: 36px;
+        height: 36px;
+        place-items: center;
+        border-radius: 10px;
+        background: linear-gradient(145deg, #6366f1, #4338ca);
+        font-size: 11px;
+        font-weight: 800;
+        box-shadow: 0 8px 18px rgb(79 70 229 / 0.28);
+      }
+
+      .title strong,
+      .title span {
+        display: block;
+      }
+
+      .title strong {
+        font-size: 14px;
+      }
+
+      .title span {
+        margin-top: 3px;
+        color: #94a3b8;
+        font-size: 11px;
+      }
+
+      .controls {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      button,
+      .source-link {
+        display: inline-flex;
+        height: 36px;
+        padding: 0 12px;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #334155;
+        border-radius: 8px;
+        color: #e2e8f0;
+        background: #1e293b;
+        cursor: pointer;
+        font: inherit;
+        font-size: 11px;
+        font-weight: 700;
+        text-decoration: none;
+      }
+
+      button:hover,
+      .source-link:hover {
+        border-color: #6366f1;
+        background: #312e81;
+      }
+
+      .zoom-value {
+        min-width: 56px;
+        color: #cbd5e1;
+        font-size: 11px;
+        font-variant-numeric: tabular-nums;
+        text-align: center;
+      }
+
+      .workspace {
+        display: grid;
+        min-height: 0;
+        grid-template-columns: 265px 1fr;
+      }
+
+      .sidebar {
+        position: relative;
+        z-index: 2;
+        padding: 22px 18px;
+        overflow-y: auto;
+        border-right: 1px solid var(--border);
+        background: var(--surface);
+      }
+
+      .sidebar h2 {
+        margin: 0 0 8px;
+        font-size: 14px;
+      }
+
+      .sidebar p {
+        margin: 0;
+        color: var(--text-secondary);
+        font-size: 11px;
+        line-height: 1.6;
+      }
+
+      .section {
+        margin-top: 24px;
+      }
+
+      .section-title {
+        margin-bottom: 10px;
+        color: #94a3b8;
+        font-size: 9px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .domain-list,
+      .legend {
+        display: grid;
+        gap: 9px;
+      }
+
+      .domain {
+        padding: 10px;
+        border: 1px solid var(--border);
+        border-radius: 9px;
+        background: var(--surface-subtle);
+        font-size: 10px;
+        font-weight: 600;
+      }
+
+      .domain span {
+        display: block;
+        margin-top: 3px;
+        color: var(--text-secondary);
+        font-size: 9px;
+        font-weight: 400;
+        line-height: 1.45;
+      }
+
+      .legend-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--text-secondary);
+        font-size: 10px;
+      }
+
+      .key {
+        display: grid;
+        width: 27px;
+        height: 22px;
+        place-items: center;
+        border-radius: 6px;
+        color: #3730a3;
+        background: #e0e7ff;
+        font-size: 8px;
+        font-weight: 800;
+      }
+
+      .stage {
+        position: relative;
+        min-width: 0;
+        min-height: 0;
+        overflow: hidden;
+        cursor: grab;
+        background:
+          linear-gradient(rgb(148 163 184 / 0.16) 1px, transparent 1px),
+          linear-gradient(90deg, rgb(148 163 184 / 0.16) 1px, transparent 1px),
+          var(--canvas);
+        background-size: 24px 24px;
+        touch-action: none;
+        user-select: none;
+      }
+
+      .stage.is-dragging {
+        cursor: grabbing;
+      }
+
+      #diagram {
+        position: absolute;
+        top: 0;
+        left: 0;
+        max-width: none;
+        pointer-events: none;
+        transform-origin: 0 0;
+        filter: drop-shadow(0 18px 32px rgb(15 23 42 / 0.13));
+        will-change: transform;
+      }
+
+      .hint {
+        position: absolute;
+        right: 16px;
+        bottom: 16px;
+        padding: 8px 10px;
+        border: 1px solid rgb(255 255 255 / 0.7);
+        border-radius: 8px;
+        color: #475569;
+        background: rgb(255 255 255 / 0.9);
+        box-shadow: 0 8px 22px rgb(15 23 42 / 0.08);
+        font-size: 9px;
+        pointer-events: none;
+        backdrop-filter: blur(8px);
+      }
+
+      @media (max-width: 900px) {
+        .workspace {
+          grid-template-columns: 1fr;
+        }
+
+        .sidebar {
+          display: none;
+        }
+
+        .source-link {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="title">
+        <span class="mark">ERD</span>
+        <div>
+          <strong>Project Management Platform — Database ERD</strong>
+          <span>Version 1 · 19 entities · local viewer</span>
+        </div>
+      </div>
+      <div class="controls">
+        <button id="zoomOut" type="button" aria-label="Zoom out">−</button>
+        <span id="zoomValue" class="zoom-value">100%</span>
+        <button id="zoomIn" type="button" aria-label="Zoom in">+</button>
+        <button id="fit" type="button">Fit</button>
+        <button id="reset" type="button">100%</button>
+        <a class="source-link" href="./DATABASE_ERD.svg" target="_blank">Open SVG</a>
+        <a class="source-link" href="./DATABASE_ERD.md" target="_blank">View source</a>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <aside class="sidebar">
+        <h2>Database domains</h2>
+        <p>
+          This diagram is the proposed Version 1 relational model. Review relationships before Sequelize
+          migrations are created.
+        </p>
+
+        <section class="section">
+          <div class="section-title">Bounded contexts</div>
+          <div class="domain-list">
+            <div class="domain">Identity & access<span>Organization, users, roles and user-role assignments</span></div>
+            <div class="domain">Delivery<span>Clients, projects, team assignments, milestones and MVP acceptance</span></div>
+            <div class="domain">Project intelligence<span>Weekly health snapshots, dimensions, risks and action items</span></div>
+            <div class="domain">People development<span>Feedback, acknowledgement and improvement goals</span></div>
+            <div class="domain">Financial operations<span>Contracts, invoices, payments and project-cost estimates</span></div>
+            <div class="domain">Governance<span>Append-only audit history for sensitive changes</span></div>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-title">Key markers</div>
+          <div class="legend">
+            <div class="legend-row"><span class="key">PK</span>Primary key</div>
+            <div class="legend-row"><span class="key">FK</span>Foreign key</div>
+            <div class="legend-row"><span class="key">UK</span>Unique key</div>
+          </div>
+        </section>
+      </aside>
+
+      <section id="stage" class="stage" aria-label="Interactive database diagram">
+        <img
+          id="diagram"
+          src="./DATABASE_ERD.svg"
+          width="2581"
+          height="4187"
+          alt="Project Management Platform database ERD"
+          draggable="false"
+        />
+        <div class="hint">Drag to pan · Scroll to zoom · Double-click to fit</div>
+      </section>
+    </main>
+
+    <script>
+      const stage = document.querySelector('#stage')
+      const diagram = document.querySelector('#diagram')
+      const zoomValue = document.querySelector('#zoomValue')
+      const diagramSize = {
+        width: 2581.015625,
+        height: 4186.5
+      }
+
+      const state = {
+        scale: 1,
+        x: 0,
+        y: 0,
+        dragging: false,
+        pointerX: 0,
+        pointerY: 0
+      }
+
+      const clamp = (value, min, max) => Math.min(Math.max(value, min), max)
+
+      const render = () => {
+        diagram.style.transform = `translate(${state.x}px, ${state.y}px) scale(${state.scale})`
+        zoomValue.textContent = `${Math.round(state.scale * 100)}%`
+      }
+
+      const fitDiagram = () => {
+        const padding = 52
+        const widthScale = (stage.clientWidth - padding * 2) / diagramSize.width
+        const heightScale = (stage.clientHeight - padding * 2) / diagramSize.height
+
+        state.scale = clamp(Math.min(widthScale, heightScale), 0.08, 2)
+        state.x = (stage.clientWidth - diagramSize.width * state.scale) / 2
+        state.y = (stage.clientHeight - diagramSize.height * state.scale) / 2
+        render()
+      }
+
+      const zoomAt = (nextScale, clientX, clientY) => {
+        const bounds = stage.getBoundingClientRect()
+        const pointerX = clientX - bounds.left
+        const pointerY = clientY - bounds.top
+        const worldX = (pointerX - state.x) / state.scale
+        const worldY = (pointerY - state.y) / state.scale
+
+        state.scale = clamp(nextScale, 0.08, 3)
+        state.x = pointerX - worldX * state.scale
+        state.y = pointerY - worldY * state.scale
+        render()
+      }
+
+      stage.addEventListener(
+        'wheel',
+        event => {
+          event.preventDefault()
+          const factor = event.deltaY < 0 ? 1.12 : 0.89
+          zoomAt(state.scale * factor, event.clientX, event.clientY)
+        },
+        { passive: false }
+      )
+
+      stage.addEventListener('pointerdown', event => {
+        state.dragging = true
+        state.pointerX = event.clientX
+        state.pointerY = event.clientY
+        stage.classList.add('is-dragging')
+        stage.setPointerCapture(event.pointerId)
+      })
+
+      stage.addEventListener('pointermove', event => {
+        if (!state.dragging) return
+
+        state.x += event.clientX - state.pointerX
+        state.y += event.clientY - state.pointerY
+        state.pointerX = event.clientX
+        state.pointerY = event.clientY
+        render()
+      })
+
+      const stopDragging = event => {
+        state.dragging = false
+        stage.classList.remove('is-dragging')
+
+        if (stage.hasPointerCapture(event.pointerId)) {
+          stage.releasePointerCapture(event.pointerId)
+        }
+      }
+
+      stage.addEventListener('pointerup', stopDragging)
+      stage.addEventListener('pointercancel', stopDragging)
+      stage.addEventListener('dblclick', fitDiagram)
+
+      document.querySelector('#zoomIn').addEventListener('click', () => {
+        const bounds = stage.getBoundingClientRect()
+        zoomAt(state.scale * 1.2, bounds.left + bounds.width / 2, bounds.top + bounds.height / 2)
+      })
+
+      document.querySelector('#zoomOut').addEventListener('click', () => {
+        const bounds = stage.getBoundingClientRect()
+        zoomAt(state.scale / 1.2, bounds.left + bounds.width / 2, bounds.top + bounds.height / 2)
+      })
+
+      document.querySelector('#fit').addEventListener('click', fitDiagram)
+      document.querySelector('#reset').addEventListener('click', () => {
+        state.scale = 1
+        state.x = 32
+        state.y = 32
+        render()
+      })
+
+      diagram.addEventListener('load', fitDiagram)
+      window.addEventListener('resize', fitDiagram)
+    </script>
+  </body>
+</html>
