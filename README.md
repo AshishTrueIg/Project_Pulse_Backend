@@ -39,6 +39,7 @@ Useful URLs:
 
 - [Version 1 entity-relationship diagram](docs/DATABASE_ERD.md)
 - [Interactive local ERD viewer](docs/database-erd-viewer.html)
+- [Single-page vector ERD PDF](docs/PROJECT_MANAGEMENT_DATABASE_ERD.pdf)
 - [Standalone ERD SVG](docs/DATABASE_ERD.svg)
 
 ## Initial domain modules
