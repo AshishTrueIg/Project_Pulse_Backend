@@ -102,6 +102,88 @@ const swaggerDocument = {
         }
       }
     },
+    '/projects': {
+      get: {
+        summary: 'List projects visible to the authenticated user',
+        security: [{ bearerAuth: [] }],
+        tags: ['Projects'],
+        parameters: [
+          {
+            in: 'query',
+            name: 'search',
+            schema: {
+              type: 'string'
+            }
+          },
+          {
+            in: 'query',
+            name: 'health',
+            schema: {
+              type: 'string',
+              enum: ['green', 'amber', 'red', 'not_assessed']
+            }
+          },
+          {
+            in: 'query',
+            name: 'status',
+            schema: {
+              type: 'string'
+            }
+          },
+          {
+            in: 'query',
+            name: 'page',
+            schema: {
+              type: 'integer',
+              minimum: 1
+            }
+          },
+          {
+            in: 'query',
+            name: 'limit',
+            schema: {
+              type: 'integer',
+              minimum: 1,
+              maximum: 100
+            }
+          }
+        ],
+        responses: {
+          200: {
+            description: 'Scoped project list, portfolio summary and pagination'
+          },
+          403: {
+            description: 'Project read permission required'
+          }
+        }
+      }
+    },
+    '/projects/{projectId}': {
+      get: {
+        summary: 'Get a visible project with team, milestones and active risks',
+        security: [{ bearerAuth: [] }],
+        tags: ['Projects'],
+        parameters: [
+          {
+            in: 'path',
+            name: 'projectId',
+            required: true,
+            schema: {
+              type: 'string',
+              format: 'uuid'
+            }
+          }
+        ],
+        responses: {
+          200: {
+            description: 'Project overview'
+          },
+          404: {
+            description: 'Project is missing or outside the user scope'
+          }
+        }
+      }
+    },
     '/health': {
       get: {
         summary: 'Service health',

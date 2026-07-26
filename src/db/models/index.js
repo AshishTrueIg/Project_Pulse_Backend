@@ -145,6 +145,22 @@ Milestone.belongsTo(Project, {
   as: 'project',
   foreignKey: 'projectId'
 })
+User.hasMany(Milestone, {
+  as: 'ownedMilestones',
+  foreignKey: 'ownerUserId'
+})
+Milestone.belongsTo(User, {
+  as: 'owner',
+  foreignKey: 'ownerUserId'
+})
+User.hasMany(Milestone, {
+  as: 'acceptedMilestones',
+  foreignKey: 'acceptedByUserId'
+})
+Milestone.belongsTo(User, {
+  as: 'acceptedBy',
+  foreignKey: 'acceptedByUserId'
+})
 
 Project.hasMany(Risk, {
   as: 'risks',
