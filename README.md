@@ -36,7 +36,13 @@ Useful URLs:
 - API health: `http://localhost:4001/api/v1/health`
 - Swagger UI: `http://localhost:4001/api-docs`
 
-The local seed creates an invitation-style demo manager account:
+The local seeds create a bootstrap super administrator:
+
+- Email: `admin@pp.com`
+- Password: `U$er1234`
+- Role: `owner`
+
+They also create an invitation-style demo manager account:
 
 - Email: `riya@projectpulse.local`
 - Password: `ChangeMe123!`
