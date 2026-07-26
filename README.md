@@ -27,6 +27,7 @@ middlewares, JSON schemas, errors, and utilities.
 cp .env.example .env
 npm install
 docker compose up -d postgres
+npm run db:setup
 npm run start:dev
 ```
 
@@ -34,6 +35,25 @@ Useful URLs:
 
 - API health: `http://localhost:4001/api/v1/health`
 - Swagger UI: `http://localhost:4001/api-docs`
+
+The local seed creates an invitation-style demo manager account:
+
+- Email: `riya@projectpulse.local`
+- Password: `ChangeMe123!`
+
+This credential is for local development only and must never be used in a
+deployed environment.
+
+## Implemented foundation
+
+- Organization-scoped users and standard roles
+- Password authentication with bcrypt
+- Short-lived JWT access tokens
+- Rotating, revocable refresh sessions in an HTTP-only cookie
+- Backend permission middleware with active-user checks
+- Login audit records
+- Seeded clients, projects, assignments, milestones, and risks
+- Protected manager dashboard summary from PostgreSQL
 
 ## Database design
 

@@ -90,6 +90,16 @@ const config = convict({
       format: String,
       default: '7d',
       env: 'JWT_REFRESH_EXPIRES_IN'
+    },
+    refreshCookieName: {
+      format: String,
+      default: 'projectPulseRefreshToken',
+      env: 'JWT_REFRESH_COOKIE_NAME'
+    },
+    refreshCookieMaxAgeMs: {
+      format: 'nat',
+      default: 604800000,
+      env: 'JWT_REFRESH_COOKIE_MAX_AGE_MS'
     }
   },
   swagger: {

@@ -1,5 +1,6 @@
 import bodyParser from 'body-parser'
 import compression from 'compression'
+import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import express from 'express'
 import helmet from 'helmet'
@@ -25,6 +26,7 @@ app.use(
 )
 app.use(bodyParser.json({ limit: '2mb' }))
 app.use(bodyParser.urlencoded({ extended: true }))
+app.use(cookieParser())
 app.use(morgan(config.get('env') === 'production' ? 'combined' : 'dev'))
 
 if (config.get('swagger.enabled')) {
