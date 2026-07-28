@@ -3,11 +3,14 @@ import { DataTypes, Sequelize } from 'sequelize'
 import config from '@src/configs/app.config'
 
 import defineAuditLog from './auditLog.model'
+import defineBillingRecord from './billingRecord.model'
 import defineClient from './client.model'
 import defineMilestone from './milestone.model'
 import defineOrganization from './organization.model'
 import defineProject from './project.model'
 import defineProjectAssignment from './projectAssignment.model'
+import defineProjectContract from './projectContract.model'
+import defineProjectFeedback from './projectFeedback.model'
 import defineRefreshSession from './refreshSession.model'
 import defineRisk from './risk.model'
 import defineRole from './role.model'
@@ -34,9 +37,12 @@ const Role = defineRole(sequelize, DataTypes)
 const User = defineUser(sequelize, DataTypes)
 const RefreshSession = defineRefreshSession(sequelize, DataTypes)
 const AuditLog = defineAuditLog(sequelize, DataTypes)
+const BillingRecord = defineBillingRecord(sequelize, DataTypes)
 const Client = defineClient(sequelize, DataTypes)
 const Project = defineProject(sequelize, DataTypes)
 const ProjectAssignment = defineProjectAssignment(sequelize, DataTypes)
+const ProjectContract = defineProjectContract(sequelize, DataTypes)
+const ProjectFeedback = defineProjectFeedback(sequelize, DataTypes)
 const Milestone = defineMilestone(sequelize, DataTypes)
 const Risk = defineRisk(sequelize, DataTypes)
 
@@ -175,13 +181,66 @@ Risk.belongsTo(User, {
   foreignKey: 'ownerUserId'
 })
 
+Project.hasOne(ProjectContract, {
+  as: 'contract',
+  foreignKey: 'projectId'
+})
+ProjectContract.belongsTo(Project, {
+  as: 'project',
+  foreignKey: 'projectId'
+})
+ProjectContract.hasMany(BillingRecord, {
+  as: 'billingRecords',
+  foreignKey: 'contractId'
+})
+BillingRecord.belongsTo(ProjectContract, {
+  as: 'contract',
+  foreignKey: 'contractId'
+})
+Project.hasMany(BillingRecord, {
+  as: 'billingRecords',
+  foreignKey: 'projectId'
+})
+BillingRecord.belongsTo(Project, {
+  as: 'project',
+  foreignKey: 'projectId'
+})
+
+Project.hasMany(ProjectFeedback, {
+  as: 'feedback',
+  foreignKey: 'projectId'
+})
+ProjectFeedback.belongsTo(Project, {
+  as: 'project',
+  foreignKey: 'projectId'
+})
+User.hasMany(ProjectFeedback, {
+  as: 'receivedProjectFeedback',
+  foreignKey: 'subjectUserId'
+})
+ProjectFeedback.belongsTo(User, {
+  as: 'subject',
+  foreignKey: 'subjectUserId'
+})
+User.hasMany(ProjectFeedback, {
+  as: 'authoredProjectFeedback',
+  foreignKey: 'authorUserId'
+})
+ProjectFeedback.belongsTo(User, {
+  as: 'author',
+  foreignKey: 'authorUserId'
+})
+
 export {
   AuditLog,
+  BillingRecord,
   Client,
   Milestone,
   Organization,
   Project,
   ProjectAssignment,
+  ProjectContract,
+  ProjectFeedback,
   RefreshSession,
   Risk,
   Role,

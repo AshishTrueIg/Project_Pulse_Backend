@@ -125,11 +125,11 @@ describe('project serializers', () => {
     expect(result.milestones.next.name).toBe('MVP 2')
   })
 
-  it('returns project detail with active risks and assignment context', () => {
+  it('returns project detail with risk history and assignment context', () => {
     const result = serializeProjectDetail(createProject())
 
     expect(result.healthScore).toBe(62)
-    expect(result.risks).toHaveLength(1)
+    expect(result.risks).toHaveLength(2)
     expect(result.team[0]).toEqual(
       expect.objectContaining({
         projectRole: 'Technical Lead',

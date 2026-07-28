@@ -84,7 +84,8 @@ export const up = async queryInterface => {
         'projects:write',
         'people:read',
         'feedback:write',
-        'financials:read'
+        'financials:read',
+        'financials:write'
       ]),
       is_system: true
     }),
@@ -234,7 +235,7 @@ export const up = async queryInterface => {
       manager_user_id: ids.users.riya,
       name: 'Verde Operations',
       code: 'VOP',
-      stage: 'maintenance',
+      stage: 'maintenance_retainer',
       overall_health: 'green',
       start_date: dateOnly(daysFromNow(-220)),
       target_end_date: null,

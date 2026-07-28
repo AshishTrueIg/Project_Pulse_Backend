@@ -249,7 +249,6 @@ const serializeProjectListItem = project => {
 
 const serializeProjectDetail = project => {
   const assignments = getActiveAssignments(project.assignments)
-  const activeRisks = getActiveRisks(project.risks)
   const completedMilestones = project.milestones.filter(milestone =>
     COMPLETED_MILESTONE_STATUSES.has(milestone.status)
   )
@@ -324,7 +323,7 @@ const serializeProjectDetail = project => {
         statusLabel: formatLabel(milestone.status),
         type: milestone.milestoneType
       })),
-    risks: activeRisks
+    risks: [...project.risks]
       .sort((left, right) => {
         const priority = {
           critical: 4,

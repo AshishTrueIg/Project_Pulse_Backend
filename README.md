@@ -58,8 +58,15 @@ deployed environment.
 - Rotating, revocable refresh sessions in an HTTP-only cookie
 - Backend permission middleware with active-user checks
 - Login audit records
-- Seeded clients, projects, assignments, milestones, and risks
+- Project filtering, pagination, scoped detail, creation, and updates
+- Audited milestone/MVP, team-assignment, and risk write workflows
+- Draft, publish, employee-visibility, and acknowledgement feedback rules
+- Permission-isolated contracts and billing records with server-calculated
+  outstanding amount, contribution, and estimated margin
+- Seeded clients, projects, assignments, milestones, risks, feedback, contracts,
+  and billing records
 - Protected manager dashboard summary from PostgreSQL
+- OpenAPI coverage for the complete project workspace API
 
 ## Database design
 
@@ -68,13 +75,12 @@ deployed environment.
 - [Single-page vector ERD PDF](docs/PROJECT_MANAGEMENT_DATABASE_ERD.pdf)
 - [Standalone ERD SVG](docs/DATABASE_ERD.svg)
 
-## Initial domain modules
+## Project workspace API
 
-- Authentication, users, roles, and project-scoped authorization
-- Clients and projects
-- Project assignments, responsibilities, and experience
-- Milestones and MVP acceptance
-- Weekly project health, risks, blockers, and actions
-- Employee feedback, acknowledgement, and improvement goals
-- Manager-only contracts, billing, collections, cost, and margin
-- Notifications and audit history
+- `GET/POST /api/v1/projects`
+- `GET/PATCH /api/v1/projects/:projectId`
+- `POST/PATCH /api/v1/projects/:projectId/milestones`
+- `POST/PATCH/DELETE /api/v1/projects/:projectId/members`
+- `POST/PATCH /api/v1/projects/:projectId/risks`
+- `GET/POST/PATCH /api/v1/projects/:projectId/feedback`
+- `GET/PUT/POST/PATCH /api/v1/projects/:projectId/financials`
