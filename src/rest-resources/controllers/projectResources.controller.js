@@ -1,12 +1,32 @@
 import { StatusCodes } from 'http-status-codes'
 
 import { sendResponse } from '@src/helpers/response.helpers'
+import CreateProjectHealthUpdateService from '@src/services/projects/createProjectHealthUpdate.service'
 import DeactivateProjectMemberService from '@src/services/projects/deactivateProjectMember.service'
 import UpsertMilestoneService from '@src/services/projects/upsertMilestone.service'
 import UpsertProjectMemberService from '@src/services/projects/upsertProjectMember.service'
 import UpsertRiskService from '@src/services/projects/upsertRisk.service'
 
 class ProjectResourcesController {
+  static async createHealthUpdate (request, response, next) {
+    try {
+      const result = await CreateProjectHealthUpdateService.execute(
+        {
+          ...request.body,
+          projectId: request.params.projectId
+        },
+        request.context
+      )
+
+      sendResponse({ response }, result, {
+        message: 'Weekly project update submitted',
+        statusCode: StatusCodes.CREATED
+      })
+    } catch (error) {
+      next(error)
+    }
+  }
+
   static async createMilestone (request, response, next) {
     try {
       const result = await UpsertMilestoneService.execute(

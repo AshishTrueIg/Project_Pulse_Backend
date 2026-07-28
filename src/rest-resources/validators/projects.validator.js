@@ -143,6 +143,31 @@ const riskFields = () => [
     .withMessage('Risk title must contain between 2 and 220 characters')
 ]
 
+const healthUpdateFields = () => [
+  body('accomplishments')
+    .optional({ nullable: true, checkFalsy: true })
+    .trim()
+    .isLength({ max: 4000 })
+    .withMessage('Accomplishments cannot exceed 4000 characters'),
+  body('blockers')
+    .optional({ nullable: true, checkFalsy: true })
+    .trim()
+    .isLength({ max: 4000 })
+    .withMessage('Blockers cannot exceed 4000 characters'),
+  body('health')
+    .isIn(['green', 'amber', 'red', 'not_assessed'])
+    .withMessage('Select a valid project health'),
+  body('nextSteps')
+    .optional({ nullable: true, checkFalsy: true })
+    .trim()
+    .isLength({ max: 4000 })
+    .withMessage('Next steps cannot exceed 4000 characters'),
+  body('summary')
+    .trim()
+    .isLength({ min: 2, max: 4000 })
+    .withMessage('Summary must contain between 2 and 4000 characters')
+]
+
 const feedbackFields = ({ optional = false } = {}) => {
   const fields = [
     body('feedbackType')
@@ -275,6 +300,7 @@ const projectValidators = {
   ],
   financialsGet: () => [projectId()],
   get: () => [projectId()],
+  healthUpdateCreate: () => [projectId(), ...healthUpdateFields()],
   list,
   memberCreate: () => [projectId(), ...memberFields()],
   memberDeactivate: () => [

@@ -273,6 +273,23 @@ const swaggerDocument = {
         }
       }
     },
+    '/projects/{projectId}/health-updates': {
+      post: {
+        summary: 'Submit a persistent weekly project health update',
+        security: [{ bearerAuth: [] }],
+        tags: ['Projects'],
+        parameters: [projectIdParameter],
+        requestBody: jsonBody('ProjectHealthUpdateWrite'),
+        responses: {
+          201: {
+            description: 'Weekly update submitted and project health refreshed'
+          },
+          403: {
+            description: 'Project update permission required'
+          }
+        }
+      }
+    },
     '/projects/{projectId}/milestones/{milestoneId}': {
       patch: {
         summary: 'Update milestone delivery or acceptance state',
@@ -526,6 +543,36 @@ const swaggerDocument = {
             enum: ['active', 'upcoming', 'on_hold', 'maintenance', 'completed']
           },
           targetEndDate: { type: 'string', format: 'date', nullable: true }
+        }
+      },
+      ProjectHealthUpdateWrite: {
+        type: 'object',
+        required: ['health', 'summary'],
+        properties: {
+          accomplishments: {
+            type: 'string',
+            maxLength: 4000,
+            nullable: true
+          },
+          blockers: {
+            type: 'string',
+            maxLength: 4000,
+            nullable: true
+          },
+          health: {
+            type: 'string',
+            enum: ['green', 'amber', 'red', 'not_assessed']
+          },
+          nextSteps: {
+            type: 'string',
+            maxLength: 4000,
+            nullable: true
+          },
+          summary: {
+            type: 'string',
+            minLength: 2,
+            maxLength: 4000
+          }
         }
       },
       MilestoneWrite: {

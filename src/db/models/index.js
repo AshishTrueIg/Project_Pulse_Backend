@@ -11,6 +11,7 @@ import defineProject from './project.model'
 import defineProjectAssignment from './projectAssignment.model'
 import defineProjectContract from './projectContract.model'
 import defineProjectFeedback from './projectFeedback.model'
+import defineProjectHealthUpdate from './projectHealthUpdate.model'
 import defineRefreshSession from './refreshSession.model'
 import defineRisk from './risk.model'
 import defineRole from './role.model'
@@ -43,6 +44,7 @@ const Project = defineProject(sequelize, DataTypes)
 const ProjectAssignment = defineProjectAssignment(sequelize, DataTypes)
 const ProjectContract = defineProjectContract(sequelize, DataTypes)
 const ProjectFeedback = defineProjectFeedback(sequelize, DataTypes)
+const ProjectHealthUpdate = defineProjectHealthUpdate(sequelize, DataTypes)
 const Milestone = defineMilestone(sequelize, DataTypes)
 const Risk = defineRisk(sequelize, DataTypes)
 
@@ -231,6 +233,23 @@ ProjectFeedback.belongsTo(User, {
   foreignKey: 'authorUserId'
 })
 
+Project.hasMany(ProjectHealthUpdate, {
+  as: 'healthUpdates',
+  foreignKey: 'projectId'
+})
+ProjectHealthUpdate.belongsTo(Project, {
+  as: 'project',
+  foreignKey: 'projectId'
+})
+User.hasMany(ProjectHealthUpdate, {
+  as: 'submittedHealthUpdates',
+  foreignKey: 'submittedByUserId'
+})
+ProjectHealthUpdate.belongsTo(User, {
+  as: 'submittedBy',
+  foreignKey: 'submittedByUserId'
+})
+
 export {
   AuditLog,
   BillingRecord,
@@ -241,6 +260,7 @@ export {
   ProjectAssignment,
   ProjectContract,
   ProjectFeedback,
+  ProjectHealthUpdate,
   RefreshSession,
   Risk,
   Role,

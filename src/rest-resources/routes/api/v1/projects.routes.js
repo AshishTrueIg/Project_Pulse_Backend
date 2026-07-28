@@ -64,6 +64,14 @@ router.patch(
 )
 
 router.post(
+  '/:projectId/health-updates',
+  canManageDelivery,
+  projectValidators.healthUpdateCreate(),
+  validateRequest,
+  ProjectResourcesController.createHealthUpdate
+)
+
+router.post(
   '/:projectId/milestones',
   canManageDelivery,
   projectValidators.milestoneCreate(),
