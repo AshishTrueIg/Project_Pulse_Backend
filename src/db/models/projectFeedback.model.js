@@ -47,6 +47,22 @@ const defineProjectFeedback = (sequelize, DataTypes) =>
         type: DataTypes.TEXT,
         allowNull: true
       },
+      deliveryRating: {
+        type: DataTypes.SMALLINT,
+        allowNull: true
+      },
+      qualityRating: {
+        type: DataTypes.SMALLINT,
+        allowNull: true
+      },
+      collaborationRating: {
+        type: DataTypes.SMALLINT,
+        allowNull: true
+      },
+      ownershipRating: {
+        type: DataTypes.SMALLINT,
+        allowNull: true
+      },
       visibility: {
         type: DataTypes.STRING(32),
         allowNull: false

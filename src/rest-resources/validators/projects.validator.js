@@ -190,6 +190,22 @@ const feedbackFields = ({ optional = false } = {}) => {
       .trim()
       .isLength({ max: 4000 })
       .withMessage('Improvement areas cannot exceed 4000 characters'),
+    body('collaborationRating')
+      .optional({ nullable: true })
+      .isInt({ min: 1, max: 5 })
+      .withMessage('Collaboration rating must be between 1 and 5'),
+    body('deliveryRating')
+      .optional({ nullable: true })
+      .isInt({ min: 1, max: 5 })
+      .withMessage('Delivery rating must be between 1 and 5'),
+    body('ownershipRating')
+      .optional({ nullable: true })
+      .isInt({ min: 1, max: 5 })
+      .withMessage('Ownership rating must be between 1 and 5'),
+    body('qualityRating')
+      .optional({ nullable: true })
+      .isInt({ min: 1, max: 5 })
+      .withMessage('Quality rating must be between 1 and 5'),
     body('reviewPeriod')
       .trim()
       .isLength({ min: 2, max: 120 })

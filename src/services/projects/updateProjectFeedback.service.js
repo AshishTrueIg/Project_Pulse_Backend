@@ -3,6 +3,10 @@ import { StatusCodes } from 'http-status-codes'
 import { ProjectFeedback, sequelize } from '@src/db/models'
 import AppError from '@src/errors/app.error'
 import BaseHandler from '@src/libs/baseHandler'
+import {
+  requirePublishedRatings,
+  RATING_FIELDS
+} from '@src/services/feedback/feedback.helpers'
 
 import {
   getProjectForWrite,
@@ -18,15 +22,46 @@ const editableFields = [
   'strengths',
   'improvementAreas',
   'goals',
-  'visibility'
+  'visibility',
+  ...RATING_FIELDS
 ]
 
 class UpdateProjectFeedbackService extends BaseHandler {
   async run () {
-    const { feedbackId, projectId, ...changes } = this.args
+    const {
+      feedbackId,
+      projectId: requestedProjectId,
+      ...changes
+    } = this.args
     const auth = this.context.auth
 
     return sequelize.transaction(async transaction => {
+      let projectId = requestedProjectId
+
+      if (!projectId) {
+        const scopedFeedback = await ProjectFeedback.findOne({
+          where: {
+            id: feedbackId,
+            organizationId: auth.organizationId
+          },
+          attributes: ['projectId'],
+          transaction
+        })
+
+        if (!scopedFeedback) {
+          throw new AppError(
+            'Feedback was not found',
+            StatusCodes.NOT_FOUND,
+            null,
+            {
+              code: 'PROJECT_FEEDBACK_NOT_FOUND'
+            }
+          )
+        }
+
+        projectId = scopedFeedback.projectId
+      }
+
       const canManage = hasPermission(
         auth,
         'feedback:write',
@@ -60,8 +95,12 @@ class UpdateProjectFeedbackService extends BaseHandler {
       }
 
       const beforeValue = feedback.toJSON()
+      const isOwnAcknowledgement =
+        feedback.subjectUserId === auth.userId &&
+        Object.prototype.hasOwnProperty.call(changes, 'employeeResponse')
+      const acknowledging = !canManage || isOwnAcknowledgement
 
-      if (!canManage) {
+      if (acknowledging) {
         if (
           feedback.subjectUserId !== auth.userId ||
           feedback.status !== 'published' ||
@@ -106,6 +145,16 @@ class UpdateProjectFeedbackService extends BaseHandler {
         )
 
         if (changes.status === 'published') {
+          requirePublishedRatings(
+            Object.fromEntries(
+              RATING_FIELDS.map(field => [
+                field,
+                Object.prototype.hasOwnProperty.call(changes, field)
+                  ? changes[field]
+                  : feedback[field]
+              ])
+            )
+          )
           update.status = 'published'
           update.publishedAt = new Date()
         }
@@ -117,11 +166,11 @@ class UpdateProjectFeedbackService extends BaseHandler {
 
       await writeAuditLog(
         {
-          action: canManage
-            ? feedback.status === 'published'
-                ? 'project_feedback.published'
-                : 'project_feedback.updated'
-            : 'project_feedback.acknowledged',
+          action: acknowledging
+            ? 'project_feedback.acknowledged'
+            : feedback.status === 'published'
+              ? 'project_feedback.published'
+              : 'project_feedback.updated',
           afterValue: feedback.toJSON(),
           beforeValue,
           entityId: feedback.id,

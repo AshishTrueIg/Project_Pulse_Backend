@@ -7,6 +7,10 @@ import {
 } from '@src/db/models'
 import AppError from '@src/errors/app.error'
 import BaseHandler from '@src/libs/baseHandler'
+import {
+  requirePublishedRatings,
+  RATING_FIELDS
+} from '@src/services/feedback/feedback.helpers'
 
 import {
   getOrganizationUser,
@@ -20,7 +24,11 @@ class CreateProjectFeedbackService extends BaseHandler {
       feedbackType,
       goals,
       improvementAreas,
+      collaborationRating,
+      deliveryRating,
+      ownershipRating,
       projectId,
+      qualityRating,
       reviewPeriod,
       status = 'draft',
       strengths,
@@ -58,6 +66,18 @@ class CreateProjectFeedbackService extends BaseHandler {
         )
       }
 
+      if (status === 'published') {
+        requirePublishedRatings({
+          collaborationRating,
+          deliveryRating,
+          ownershipRating,
+          qualityRating
+        })
+      }
+
+      const ratings = Object.fromEntries(
+        RATING_FIELDS.map(field => [field, this.args[field] || null])
+      )
       const feedback = await ProjectFeedback.create(
         {
           organizationId: auth.organizationId,
@@ -70,6 +90,7 @@ class CreateProjectFeedbackService extends BaseHandler {
           strengths: strengths || null,
           improvementAreas: improvementAreas || null,
           goals: goals || null,
+          ...ratings,
           visibility,
           status,
           publishedAt: status === 'published' ? new Date() : null

@@ -7,6 +7,7 @@ import {
 } from '@src/db/models'
 import AppError from '@src/errors/app.error'
 import BaseHandler from '@src/libs/baseHandler'
+import { calculateOverallRating } from '@src/services/feedback/feedback.helpers'
 import { StatusCodes } from 'http-status-codes'
 
 import {
@@ -132,6 +133,13 @@ class GetPersonService extends BaseHandler {
         strengths: item.strengths,
         improvementAreas: item.improvementAreas,
         goals: item.goals,
+        ratings: {
+          delivery: item.deliveryRating,
+          quality: item.qualityRating,
+          collaboration: item.collaborationRating,
+          ownership: item.ownershipRating,
+          overall: calculateOverallRating(item)
+        },
         status: item.status,
         visibility: item.visibility,
         publishedAt: item.publishedAt,

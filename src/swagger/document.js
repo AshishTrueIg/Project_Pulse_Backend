@@ -234,6 +234,103 @@ const swaggerDocument = {
         }
       }
     },
+    '/feedback': {
+      get: {
+        summary: 'List feedback visible to the current role with workflow metrics',
+        security: [{ bearerAuth: [] }],
+        tags: ['Feedback'],
+        parameters: [
+          {
+            in: 'query',
+            name: 'search',
+            schema: { type: 'string' }
+          },
+          {
+            in: 'query',
+            name: 'projectId',
+            schema: { type: 'string', format: 'uuid' }
+          },
+          {
+            in: 'query',
+            name: 'feedbackType',
+            schema: { type: 'string' }
+          },
+          {
+            in: 'query',
+            name: 'status',
+            schema: {
+              type: 'string',
+              enum: ['draft', 'published', 'acknowledged']
+            }
+          }
+        ],
+        responses: {
+          200: {
+            description: 'Scoped review workflow, summary and pagination'
+          }
+        }
+      },
+      post: {
+        summary: 'Create a project feedback draft or publish a complete review',
+        security: [{ bearerAuth: [] }],
+        tags: ['Feedback'],
+        requestBody: jsonBody('FeedbackWrite'),
+        responses: {
+          201: {
+            description: 'Feedback created and audited'
+          },
+          422: {
+            description: 'Published review is incomplete or subject is not assigned'
+          }
+        }
+      }
+    },
+    '/feedback/options': {
+      get: {
+        summary: 'Get scoped projects and active team members for review forms',
+        security: [{ bearerAuth: [] }],
+        tags: ['Feedback'],
+        responses: {
+          200: {
+            description: 'Feedback type, project and team member options'
+          },
+          403: {
+            description: 'Feedback management permission required'
+          }
+        }
+      }
+    },
+    '/feedback/{feedbackId}': {
+      patch: {
+        summary: 'Update or publish a draft, or acknowledge feedback addressed to you',
+        security: [{ bearerAuth: [] }],
+        tags: ['Feedback'],
+        parameters: [identifierParameter('feedbackId')],
+        requestBody: jsonBody('FeedbackWrite'),
+        responses: {
+          200: {
+            description: 'Feedback workflow updated and audited'
+          },
+          409: {
+            description: 'Published review content is immutable'
+          }
+        }
+      },
+      delete: {
+        summary: 'Discard an unpublished feedback draft',
+        security: [{ bearerAuth: [] }],
+        tags: ['Feedback'],
+        parameters: [identifierParameter('feedbackId')],
+        responses: {
+          200: {
+            description: 'Draft discarded and audited'
+          },
+          409: {
+            description: 'Only draft feedback can be discarded'
+          }
+        }
+      }
+    },
     '/projects': {
       get: {
         summary: 'List projects visible to the authenticated user',
@@ -800,10 +897,35 @@ const swaggerDocument = {
       FeedbackWrite: {
         type: 'object',
         properties: {
+          collaborationRating: {
+            type: 'integer',
+            minimum: 1,
+            maximum: 5,
+            nullable: true
+          },
+          deliveryRating: {
+            type: 'integer',
+            minimum: 1,
+            maximum: 5,
+            nullable: true
+          },
           employeeResponse: { type: 'string', nullable: true },
           feedbackType: { type: 'string' },
           goals: { type: 'string', nullable: true },
           improvementAreas: { type: 'string', nullable: true },
+          ownershipRating: {
+            type: 'integer',
+            minimum: 1,
+            maximum: 5,
+            nullable: true
+          },
+          projectId: { type: 'string', format: 'uuid' },
+          qualityRating: {
+            type: 'integer',
+            minimum: 1,
+            maximum: 5,
+            nullable: true
+          },
           reviewPeriod: { type: 'string' },
           status: { type: 'string', enum: ['draft', 'published'] },
           strengths: { type: 'string', nullable: true },

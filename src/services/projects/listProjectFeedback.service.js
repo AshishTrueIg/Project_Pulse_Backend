@@ -1,43 +1,14 @@
 import { Op } from 'sequelize'
 
-import { ProjectFeedback, User } from '@src/db/models'
+import { ProjectFeedback } from '@src/db/models'
 import BaseHandler from '@src/libs/baseHandler'
+import {
+  feedbackInclude,
+  serializeFeedback
+} from '@src/services/feedback/feedback.helpers'
 
 import { hasPermission } from './projectMutation.helpers'
 import { getProjectForRead } from './projectRead.helpers'
-
-const include = [
-  {
-    model: User,
-    as: 'subject',
-    attributes: ['id', 'fullName', 'email', 'jobTitle']
-  },
-  {
-    model: User,
-    as: 'author',
-    attributes: ['id', 'fullName', 'jobTitle']
-  }
-]
-
-const serializeFeedback = feedback => ({
-  id: feedback.id,
-  projectId: feedback.projectId,
-  feedbackType: feedback.feedbackType,
-  reviewPeriod: feedback.reviewPeriod,
-  summary: feedback.summary,
-  strengths: feedback.strengths,
-  improvementAreas: feedback.improvementAreas,
-  goals: feedback.goals,
-  visibility: feedback.visibility,
-  status: feedback.status,
-  employeeResponse: feedback.employeeResponse,
-  publishedAt: feedback.publishedAt,
-  acknowledgedAt: feedback.acknowledgedAt,
-  createdAt: feedback.createdAt,
-  updatedAt: feedback.updatedAt,
-  subject: feedback.subject,
-  author: feedback.author
-})
 
 class ListProjectFeedbackService extends BaseHandler {
   async run () {
@@ -66,7 +37,7 @@ class ListProjectFeedbackService extends BaseHandler {
 
     const feedback = await ProjectFeedback.findAll({
       where,
-      include,
+      include: feedbackInclude,
       order: [['createdAt', 'DESC']],
       transaction: this.dbTransaction
     })
@@ -78,5 +49,4 @@ class ListProjectFeedbackService extends BaseHandler {
   }
 }
 
-export { serializeFeedback }
 export default ListProjectFeedbackService
