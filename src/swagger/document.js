@@ -133,6 +133,107 @@ const swaggerDocument = {
         }
       }
     },
+    '/people': {
+      get: {
+        summary: 'List visible people with project allocation and capacity signals',
+        security: [{ bearerAuth: [] }],
+        tags: ['People'],
+        parameters: [
+          {
+            in: 'query',
+            name: 'search',
+            schema: {
+              type: 'string'
+            }
+          },
+          {
+            in: 'query',
+            name: 'role',
+            schema: {
+              type: 'string'
+            }
+          },
+          {
+            in: 'query',
+            name: 'workload',
+            schema: {
+              type: 'string',
+              enum: ['unallocated', 'light', 'normal', 'heavy', 'overloaded']
+            }
+          },
+          {
+            in: 'query',
+            name: 'projectId',
+            schema: {
+              type: 'string',
+              format: 'uuid'
+            }
+          },
+          {
+            in: 'query',
+            name: 'status',
+            schema: {
+              type: 'string',
+              enum: ['active', 'inactive']
+            }
+          }
+        ],
+        responses: {
+          200: {
+            description: 'Scoped people directory, capacity summary and pagination'
+          },
+          403: {
+            description: 'People read permission required'
+          }
+        }
+      }
+    },
+    '/people/options': {
+      get: {
+        summary: 'Get roles, managers and projects for people workflows',
+        security: [{ bearerAuth: [] }],
+        tags: ['People'],
+        responses: {
+          200: {
+            description: 'People form and filter options'
+          },
+          403: {
+            description: 'People write permission required'
+          }
+        }
+      }
+    },
+    '/people/{personId}': {
+      get: {
+        summary: 'Get a person profile, assignments and visible feedback',
+        security: [{ bearerAuth: [] }],
+        tags: ['People'],
+        parameters: [identifierParameter('personId')],
+        responses: {
+          200: {
+            description: 'Person profile'
+          },
+          404: {
+            description: 'Person is missing or outside the user scope'
+          }
+        }
+      },
+      patch: {
+        summary: 'Update employment profile and access role',
+        security: [{ bearerAuth: [] }],
+        tags: ['People'],
+        parameters: [identifierParameter('personId')],
+        requestBody: jsonBody('PersonUpdate'),
+        responses: {
+          200: {
+            description: 'Person profile updated and audited'
+          },
+          403: {
+            description: 'People write permission required'
+          }
+        }
+      }
+    },
     '/projects': {
       get: {
         summary: 'List projects visible to the authenticated user',
@@ -572,6 +673,66 @@ const swaggerDocument = {
             type: 'string',
             minLength: 2,
             maxLength: 4000
+          }
+        }
+      },
+      PersonUpdate: {
+        type: 'object',
+        properties: {
+          email: {
+            type: 'string',
+            format: 'email'
+          },
+          employeeCode: {
+            type: 'string',
+            nullable: true,
+            maxLength: 40
+          },
+          employmentStartDate: {
+            type: 'string',
+            format: 'date',
+            nullable: true
+          },
+          fullName: {
+            type: 'string',
+            minLength: 2,
+            maxLength: 160
+          },
+          jobTitle: {
+            type: 'string',
+            nullable: true,
+            maxLength: 160
+          },
+          managerUserId: {
+            type: 'string',
+            format: 'uuid',
+            nullable: true
+          },
+          profileSummary: {
+            type: 'string',
+            nullable: true,
+            maxLength: 3000
+          },
+          roleId: {
+            type: 'string',
+            format: 'uuid'
+          },
+          skills: {
+            type: 'array',
+            maxItems: 30,
+            items: {
+              type: 'string'
+            }
+          },
+          status: {
+            type: 'string',
+            enum: ['active', 'inactive']
+          },
+          totalExperienceYears: {
+            type: 'number',
+            minimum: 0,
+            maximum: 80,
+            nullable: true
           }
         }
       },

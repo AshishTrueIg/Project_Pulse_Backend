@@ -16,6 +16,7 @@ import defineRefreshSession from './refreshSession.model'
 import defineRisk from './risk.model'
 import defineRole from './role.model'
 import defineUser from './user.model'
+import defineUserRole from './userRole.model'
 
 const sequelize = new Sequelize(
   config.get('db.name'),
@@ -36,6 +37,7 @@ const sequelize = new Sequelize(
 const Organization = defineOrganization(sequelize, DataTypes)
 const Role = defineRole(sequelize, DataTypes)
 const User = defineUser(sequelize, DataTypes)
+const UserRole = defineUserRole(sequelize, DataTypes)
 const RefreshSession = defineRefreshSession(sequelize, DataTypes)
 const AuditLog = defineAuditLog(sequelize, DataTypes)
 const BillingRecord = defineBillingRecord(sequelize, DataTypes)
@@ -65,12 +67,19 @@ User.belongsTo(Organization, {
   as: 'organization',
   foreignKey: 'organizationId'
 })
+User.belongsTo(User, {
+  as: 'manager',
+  foreignKey: 'managerUserId'
+})
+User.hasMany(User, {
+  as: 'directReports',
+  foreignKey: 'managerUserId'
+})
 
 User.belongsToMany(Role, {
   as: 'roles',
   through: {
-    model: 'user_roles',
-    timestamps: false
+    model: UserRole
   },
   foreignKey: 'userId',
   otherKey: 'roleId'
@@ -78,8 +87,7 @@ User.belongsToMany(Role, {
 Role.belongsToMany(User, {
   as: 'users',
   through: {
-    model: 'user_roles',
-    timestamps: false
+    model: UserRole
   },
   foreignKey: 'roleId',
   otherKey: 'userId'
@@ -265,5 +273,6 @@ export {
   Risk,
   Role,
   User,
+  UserRole,
   sequelize
 }

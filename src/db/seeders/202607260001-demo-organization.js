@@ -83,6 +83,7 @@ export const up = async queryInterface => {
         'projects:read',
         'projects:write',
         'people:read',
+        'people:write',
         'feedback:write',
         'financials:read',
         'financials:write'
@@ -97,6 +98,7 @@ export const up = async queryInterface => {
         'dashboard:read:assigned',
         'projects:read:assigned',
         'projects:update:assigned',
+        'people:read:assigned',
         'feedback:write:assigned'
       ]),
       is_system: true
@@ -108,6 +110,7 @@ export const up = async queryInterface => {
       permissions: JSON.stringify([
         'dashboard:read:own',
         'projects:read:assigned',
+        'people:read:self',
         'feedback:read:own'
       ]),
       is_system: true

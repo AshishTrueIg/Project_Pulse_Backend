@@ -28,6 +28,31 @@ const defineUser = (sequelize, DataTypes) =>
         type: DataTypes.STRING(160),
         allowNull: true
       },
+      employeeCode: {
+        type: DataTypes.STRING(40),
+        allowNull: true
+      },
+      employmentStartDate: {
+        type: DataTypes.DATEONLY,
+        allowNull: true
+      },
+      totalExperienceYears: {
+        type: DataTypes.DECIMAL(4, 1),
+        allowNull: true
+      },
+      skills: {
+        type: DataTypes.JSONB,
+        allowNull: false,
+        defaultValue: []
+      },
+      profileSummary: {
+        type: DataTypes.TEXT,
+        allowNull: true
+      },
+      managerUserId: {
+        type: DataTypes.UUID,
+        allowNull: true
+      },
       status: {
         type: DataTypes.STRING(32),
         allowNull: false,
