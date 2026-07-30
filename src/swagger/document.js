@@ -331,6 +331,52 @@ const swaggerDocument = {
         }
       }
     },
+    '/financials': {
+      get: {
+        summary: 'Get restricted portfolio contracts, billing and collection estimates',
+        security: [{ bearerAuth: [] }],
+        tags: ['Financials'],
+        parameters: [
+          {
+            in: 'query',
+            name: 'search',
+            schema: { type: 'string' }
+          },
+          {
+            in: 'query',
+            name: 'projectId',
+            schema: { type: 'string', format: 'uuid' }
+          },
+          {
+            in: 'query',
+            name: 'contractType',
+            schema: { type: 'string' }
+          },
+          {
+            in: 'query',
+            name: 'financialStatus',
+            schema: {
+              type: 'string',
+              enum: [
+                'healthy',
+                'outstanding',
+                'past_due',
+                'no_billing',
+                'no_contract'
+              ]
+            }
+          }
+        ],
+        responses: {
+          200: {
+            description: 'Portfolio totals, monthly trend, project health and recent billing'
+          },
+          403: {
+            description: 'Financial permission required'
+          }
+        }
+      }
+    },
     '/projects': {
       get: {
         summary: 'List projects visible to the authenticated user',
