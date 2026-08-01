@@ -10,6 +10,7 @@ import {
   getProjectForWrite,
   writeAuditLog
 } from './projectMutation.helpers'
+import { recalculateProjectHealth } from './projectHealth.helpers'
 
 const editableFields = [
   'name',
@@ -114,6 +115,12 @@ class UpsertMilestoneService extends BaseHandler {
           }
         },
         auth,
+        transaction
+      )
+
+      await recalculateProjectHealth(
+        projectId,
+        auth.organizationId,
         transaction
       )
 

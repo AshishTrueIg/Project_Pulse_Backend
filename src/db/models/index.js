@@ -16,6 +16,7 @@ import defineRefreshSession from './refreshSession.model'
 import defineRisk from './risk.model'
 import defineRole from './role.model'
 import defineUser from './user.model'
+import defineUserInvitation from './userInvitation.model'
 import defineUserRole from './userRole.model'
 
 const sequelize = new Sequelize(
@@ -37,6 +38,7 @@ const sequelize = new Sequelize(
 const Organization = defineOrganization(sequelize, DataTypes)
 const Role = defineRole(sequelize, DataTypes)
 const User = defineUser(sequelize, DataTypes)
+const UserInvitation = defineUserInvitation(sequelize, DataTypes)
 const UserRole = defineUserRole(sequelize, DataTypes)
 const RefreshSession = defineRefreshSession(sequelize, DataTypes)
 const AuditLog = defineAuditLog(sequelize, DataTypes)
@@ -93,6 +95,47 @@ Role.belongsToMany(User, {
   otherKey: 'userId'
 })
 
+Organization.hasMany(UserInvitation, {
+  as: 'invitations',
+  foreignKey: 'organizationId'
+})
+UserInvitation.belongsTo(Organization, {
+  as: 'organization',
+  foreignKey: 'organizationId'
+})
+Role.hasMany(UserInvitation, {
+  as: 'invitations',
+  foreignKey: 'roleId'
+})
+UserInvitation.belongsTo(Role, {
+  as: 'role',
+  foreignKey: 'roleId'
+})
+User.hasMany(UserInvitation, {
+  as: 'sentInvitations',
+  foreignKey: 'invitedByUserId'
+})
+UserInvitation.belongsTo(User, {
+  as: 'invitedBy',
+  foreignKey: 'invitedByUserId'
+})
+User.hasMany(UserInvitation, {
+  as: 'managedInvitations',
+  foreignKey: 'managerUserId'
+})
+UserInvitation.belongsTo(User, {
+  as: 'manager',
+  foreignKey: 'managerUserId'
+})
+User.hasOne(UserInvitation, {
+  as: 'acceptedInvitation',
+  foreignKey: 'acceptedUserId'
+})
+UserInvitation.belongsTo(User, {
+  as: 'acceptedUser',
+  foreignKey: 'acceptedUserId'
+})
+
 User.hasMany(RefreshSession, {
   as: 'refreshSessions',
   foreignKey: 'userId'
@@ -100,6 +143,15 @@ User.hasMany(RefreshSession, {
 RefreshSession.belongsTo(User, {
   as: 'user',
   foreignKey: 'userId'
+})
+
+User.hasMany(AuditLog, {
+  as: 'auditEvents',
+  foreignKey: 'actorUserId'
+})
+AuditLog.belongsTo(User, {
+  as: 'actor',
+  foreignKey: 'actorUserId'
 })
 
 Organization.hasMany(Client, {
@@ -273,6 +325,7 @@ export {
   Risk,
   Role,
   User,
+  UserInvitation,
   UserRole,
   sequelize
 }

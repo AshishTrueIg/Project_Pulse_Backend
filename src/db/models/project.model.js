@@ -35,6 +35,20 @@ const defineProject = (sequelize, DataTypes) =>
         type: DataTypes.STRING(24),
         allowNull: false
       },
+      managerHealthAssessment: {
+        type: DataTypes.STRING(24),
+        allowNull: false,
+        defaultValue: 'not_assessed'
+      },
+      healthScore: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0
+      },
+      healthBreakdown: {
+        type: DataTypes.JSONB,
+        allowNull: true
+      },
       startDate: {
         type: DataTypes.DATEONLY,
         allowNull: false

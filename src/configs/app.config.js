@@ -102,6 +102,58 @@ const config = convict({
       env: 'JWT_REFRESH_COOKIE_MAX_AGE_MS'
     }
   },
+  invitation: {
+    expiresHours: {
+      format: 'nat',
+      default: 48,
+      env: 'INVITATION_EXPIRES_HOURS'
+    }
+  },
+  mail: {
+    transport: {
+      format: ['json', 'smtp'],
+      default: 'json',
+      env: 'MAIL_TRANSPORT'
+    },
+    fromName: {
+      format: String,
+      default: 'Project Pulse',
+      env: 'MAIL_FROM_NAME'
+    },
+    fromAddress: {
+      format: String,
+      default: 'no-reply@projectpulse.local',
+      env: 'MAIL_FROM_ADDRESS'
+    },
+    smtp: {
+      host: {
+        format: String,
+        default: '',
+        env: 'SMTP_HOST'
+      },
+      port: {
+        format: 'port',
+        default: 587,
+        env: 'SMTP_PORT'
+      },
+      secure: {
+        format: Boolean,
+        default: false,
+        env: 'SMTP_SECURE'
+      },
+      username: {
+        format: String,
+        default: '',
+        env: 'SMTP_USER'
+      },
+      password: {
+        format: String,
+        default: '',
+        env: 'SMTP_PASSWORD',
+        sensitive: true
+      }
+    }
+  },
   swagger: {
     enabled: {
       format: Boolean,

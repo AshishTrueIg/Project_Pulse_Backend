@@ -2,9 +2,11 @@ import { Router } from 'express'
 import { body } from 'express-validator'
 
 import AuthController from '@src/rest-resources/controllers/auth.controller'
+import InvitationsController from '@src/rest-resources/controllers/invitations.controller'
 import asyncHandler from '@src/rest-resources/middlewares/asyncHandler.middleware'
 import authenticate from '@src/rest-resources/middlewares/authenticate.middleware'
 import validateRequest from '@src/rest-resources/middlewares/validateRequest.middleware'
+import invitationsValidators from '@src/rest-resources/validators/invitations.validator'
 
 const router = Router()
 
@@ -16,6 +18,18 @@ router.post(
   ],
   validateRequest,
   AuthController.login
+)
+router.post(
+  '/invitations/validate',
+  invitationsValidators.validate(),
+  validateRequest,
+  InvitationsController.validate
+)
+router.post(
+  '/invitations/accept',
+  invitationsValidators.accept(),
+  validateRequest,
+  InvitationsController.accept
 )
 router.post('/refresh', AuthController.refresh)
 router.post('/logout', AuthController.logout)

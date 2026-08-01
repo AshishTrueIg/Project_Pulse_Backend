@@ -3,6 +3,13 @@
 Backend repository for the internal project, people, feedback, health, milestone,
 and financial management platform.
 
+## Product authorship
+
+Project Pulse was conceived, designed and engineered by **Ashish Agrawal**,
+Product & Engineering Lead. The product was initiated in 2026.
+
+See [AUTHORS.md](AUTHORS.md) for the permanent creator and contributor record.
+
 ## Stack
 
 - Node.js 20.18
@@ -36,19 +43,25 @@ Useful URLs:
 - API health: `http://localhost:4001/api/v1/health`
 - Swagger UI: `http://localhost:4001/api-docs`
 
-The local seeds create a bootstrap super administrator:
+The local seeds create a clean workspace, the standard access roles and a
+bootstrap super administrator. They do not create sample people, clients,
+projects, feedback or financial records.
 
 - Email: `admin@pp.com`
 - Password: `U$er1234`
 - Role: `owner`
 
-They also create an invitation-style demo manager account:
+Use Settings, Invitations and New project to complete the initial company
+setup. The bootstrap credential is for local development only and must never
+be used in a deployed environment.
 
-- Email: `riya@projectpulse.local`
-- Password: `ChangeMe123!`
+### Invitation email delivery
 
-This credential is for local development only and must never be used in a
-deployed environment.
+Local development uses Nodemailer's JSON transport, so creating or resending an
+invitation returns a development-only copyable acceptance link. To deliver real
+email, set `MAIL_TRANSPORT=smtp` and configure `SMTP_HOST`, `SMTP_PORT`,
+`SMTP_SECURE`, `SMTP_USER`, `SMTP_PASSWORD`, `MAIL_FROM_NAME` and
+`MAIL_FROM_ADDRESS` in `.env`.
 
 ## Implemented foundation
 
@@ -58,6 +71,8 @@ deployed environment.
 - Rotating, revocable refresh sessions in an HTTP-only cookie
 - Backend permission middleware with active-user checks
 - Login audit records
+- Secure one-time user invitations with hashed tokens, expiry, resend, revoke,
+  SMTP delivery status and audited acceptance
 - Project filtering, pagination, scoped detail, creation, and updates
 - Audited milestone/MVP, team-assignment, and risk write workflows
 - Draft, publish, employee-visibility, and acknowledgement feedback rules

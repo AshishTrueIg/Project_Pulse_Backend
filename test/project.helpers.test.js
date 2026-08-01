@@ -9,6 +9,12 @@ const createProject = () => ({
   name: 'Project One',
   stage: 'active_development',
   overallHealth: 'amber',
+  managerHealthAssessment: 'amber',
+  healthScore: 58,
+  healthBreakdown: {
+    status: 'amber',
+    score: 58
+  },
   status: 'active',
   startDate: '2026-01-01',
   targetEndDate: '2026-12-31',
@@ -128,7 +134,8 @@ describe('project serializers', () => {
   it('returns project detail with risk history and assignment context', () => {
     const result = serializeProjectDetail(createProject())
 
-    expect(result.healthScore).toBe(62)
+    expect(result.healthScore).toBe(58)
+    expect(result.managerHealthAssessment).toBe('amber')
     expect(result.risks).toHaveLength(2)
     expect(result.team[0]).toEqual(
       expect.objectContaining({

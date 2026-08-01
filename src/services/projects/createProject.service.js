@@ -9,6 +9,7 @@ import {
   getOrganizationUser,
   writeAuditLog
 } from './projectMutation.helpers'
+import { recalculateProjectHealth } from './projectHealth.helpers'
 
 class CreateProjectService extends BaseHandler {
   async run () {
@@ -70,6 +71,7 @@ class CreateProjectService extends BaseHandler {
           managerUserId,
           name: name.trim(),
           overallHealth,
+          managerHealthAssessment: overallHealth,
           stage,
           startDate,
           status,
@@ -90,6 +92,12 @@ class CreateProjectService extends BaseHandler {
           entityType: 'project'
         },
         auth,
+        transaction
+      )
+
+      await recalculateProjectHealth(
+        project.id,
+        auth.organizationId,
         transaction
       )
 

@@ -4,6 +4,7 @@ import {
   getProjectForWrite,
   writeAuditLog
 } from '@src/services/projects/projectMutation.helpers'
+import { recalculateProjectHealth } from '@src/services/projects/projectHealth.helpers'
 
 jest.mock('@src/db/models', () => ({
   ProjectHealthUpdate: {
@@ -17,6 +18,10 @@ jest.mock('@src/db/models', () => ({
 jest.mock('@src/services/projects/projectMutation.helpers', () => ({
   getProjectForWrite: jest.fn(),
   writeAuditLog: jest.fn()
+}))
+
+jest.mock('@src/services/projects/projectHealth.helpers', () => ({
+  recalculateProjectHealth: jest.fn()
 }))
 
 const context = {
@@ -54,6 +59,10 @@ describe('CreateProjectHealthUpdateService', () => {
     getProjectForWrite.mockResolvedValue(project)
     ProjectHealthUpdate.create.mockResolvedValue(healthUpdate)
     writeAuditLog.mockResolvedValue(undefined)
+    recalculateProjectHealth.mockResolvedValue({
+      score: 91,
+      status: 'green'
+    })
 
     const result = await CreateProjectHealthUpdateService.execute(
       {
@@ -83,7 +92,7 @@ describe('CreateProjectHealthUpdateService', () => {
     )
     expect(project.update).toHaveBeenCalledWith(
       {
-        overallHealth: 'green',
+        managerHealthAssessment: 'green',
         lastHealthUpdatedAt: expect.any(Date)
       },
       {
@@ -99,8 +108,15 @@ describe('CreateProjectHealthUpdateService', () => {
       context.auth,
       'transaction'
     )
+    expect(recalculateProjectHealth).toHaveBeenCalledWith(
+      'project-1',
+      'organization-1',
+      'transaction'
+    )
     expect(result).toEqual(
       expect.objectContaining({
+        calculatedHealth: 'green',
+        healthScore: 91,
         id: 'health-update-1',
         projectId: 'project-1',
         submittedAt: expect.any(String)

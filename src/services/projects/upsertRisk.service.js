@@ -10,6 +10,7 @@ import {
   getProjectForWrite,
   writeAuditLog
 } from './projectMutation.helpers'
+import { recalculateProjectHealth } from './projectHealth.helpers'
 
 const editableFields = [
   'title',
@@ -100,6 +101,12 @@ class UpsertRiskService extends BaseHandler {
           }
         },
         auth,
+        transaction
+      )
+
+      await recalculateProjectHealth(
+        projectId,
+        auth.organizationId,
         transaction
       )
 

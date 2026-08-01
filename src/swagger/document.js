@@ -118,6 +118,39 @@ const swaggerDocument = {
         }
       }
     },
+    '/auth/invitations/validate': {
+      post: {
+        summary: 'Validate a one-time workspace invitation token',
+        tags: ['Authentication'],
+        requestBody: jsonBody('InvitationToken'),
+        responses: {
+          200: {
+            description: 'Invitation details safe for public onboarding'
+          },
+          404: {
+            description: 'Invitation token is invalid'
+          },
+          410: {
+            description: 'Invitation has expired or was revoked'
+          }
+        }
+      }
+    },
+    '/auth/invitations/accept': {
+      post: {
+        summary: 'Create an account using a valid one-time invitation',
+        tags: ['Authentication'],
+        requestBody: jsonBody('InvitationAccept'),
+        responses: {
+          200: {
+            description: 'Account created and invitation consumed'
+          },
+          409: {
+            description: 'Invitation was already accepted or account exists'
+          }
+        }
+      }
+    },
     '/dashboard/overview': {
       get: {
         summary: 'Get the manager portfolio overview',
@@ -199,6 +232,76 @@ const swaggerDocument = {
           },
           403: {
             description: 'People write permission required'
+          }
+        }
+      }
+    },
+    '/people/invitations': {
+      get: {
+        summary: 'List company invitations and onboarding status',
+        security: [{ bearerAuth: [] }],
+        tags: ['People'],
+        parameters: [
+          {
+            in: 'query',
+            name: 'search',
+            schema: { type: 'string' }
+          },
+          {
+            in: 'query',
+            name: 'status',
+            schema: {
+              type: 'string',
+              enum: ['pending', 'accepted', 'expired', 'revoked']
+            }
+          }
+        ],
+        responses: {
+          200: {
+            description: 'Invitation lifecycle summary and paginated records'
+          },
+          403: {
+            description: 'People write permission required'
+          }
+        }
+      },
+      post: {
+        summary: 'Create and deliver a secure workspace invitation',
+        security: [{ bearerAuth: [] }],
+        tags: ['People'],
+        requestBody: jsonBody('InvitationWrite'),
+        responses: {
+          201: {
+            description: 'Invitation created, audited and passed to mail transport'
+          },
+          409: {
+            description: 'User or active invitation already exists'
+          }
+        }
+      }
+    },
+    '/people/invitations/{invitationId}/resend': {
+      post: {
+        summary: 'Invalidate the old token and resend an invitation',
+        security: [{ bearerAuth: [] }],
+        tags: ['People'],
+        parameters: [identifierParameter('invitationId')],
+        responses: {
+          200: {
+            description: 'Invitation expiry and one-time token refreshed'
+          }
+        }
+      }
+    },
+    '/people/invitations/{invitationId}': {
+      delete: {
+        summary: 'Revoke a pending or expired invitation',
+        security: [{ bearerAuth: [] }],
+        tags: ['People'],
+        parameters: [identifierParameter('invitationId')],
+        responses: {
+          200: {
+            description: 'Invitation revoked and audited'
           }
         }
       }
@@ -733,6 +836,79 @@ const swaggerDocument = {
         }
       }
     },
+    '/settings': {
+      get: {
+        summary: 'Get company profile, health policy and role overview',
+        security: [{ bearerAuth: [] }],
+        tags: ['Settings'],
+        responses: {
+          200: {
+            description: 'Company settings and current project health preview'
+          },
+          403: {
+            description: 'Settings read permission required'
+          }
+        }
+      }
+    },
+    '/settings/company': {
+      patch: {
+        summary: 'Update company profile and reporting configuration',
+        security: [{ bearerAuth: [] }],
+        tags: ['Settings'],
+        requestBody: jsonBody('CompanySettingsWrite'),
+        responses: {
+          200: {
+            description: 'Company settings updated and audited'
+          }
+        }
+      }
+    },
+    '/settings/health-policy': {
+      patch: {
+        summary: 'Update health weights and recalculate every project',
+        security: [{ bearerAuth: [] }],
+        tags: ['Settings'],
+        requestBody: jsonBody('HealthPolicyWrite'),
+        responses: {
+          200: {
+            description: 'Policy updated and project scores recalculated'
+          },
+          422: {
+            description: 'Weights or thresholds are invalid'
+          }
+        }
+      }
+    },
+    '/settings/activity': {
+      get: {
+        summary: 'List organization activity with actor and changed fields',
+        security: [{ bearerAuth: [] }],
+        tags: ['Settings'],
+        parameters: [
+          {
+            in: 'query',
+            name: 'search',
+            schema: { type: 'string' }
+          },
+          {
+            in: 'query',
+            name: 'entityType',
+            schema: { type: 'string' }
+          },
+          {
+            in: 'query',
+            name: 'action',
+            schema: { type: 'string' }
+          }
+        ],
+        responses: {
+          200: {
+            description: 'Scoped activity feed and available filters'
+          }
+        }
+      }
+    },
     '/health': {
       get: {
         summary: 'Service health',
@@ -747,6 +923,134 @@ const swaggerDocument = {
   },
   components: {
     schemas: {
+      InvitationToken: {
+        type: 'object',
+        required: ['token'],
+        properties: {
+          token: {
+            type: 'string',
+            minLength: 64,
+            maxLength: 64
+          }
+        }
+      },
+      InvitationAccept: {
+        allOf: [
+          {
+            $ref: '#/components/schemas/InvitationToken'
+          },
+          {
+            type: 'object',
+            required: ['password', 'passwordConfirmation'],
+            properties: {
+              password: {
+                type: 'string',
+                format: 'password',
+                minLength: 8,
+                maxLength: 128
+              },
+              passwordConfirmation: {
+                type: 'string',
+                format: 'password'
+              }
+            }
+          }
+        ]
+      },
+      InvitationWrite: {
+        type: 'object',
+        required: ['email', 'fullName', 'roleId'],
+        properties: {
+          email: {
+            type: 'string',
+            format: 'email',
+            maxLength: 255
+          },
+          fullName: {
+            type: 'string',
+            minLength: 2,
+            maxLength: 160
+          },
+          jobTitle: {
+            type: 'string',
+            nullable: true,
+            maxLength: 160
+          },
+          roleId: {
+            type: 'string',
+            format: 'uuid'
+          },
+          managerUserId: {
+            type: 'string',
+            format: 'uuid',
+            nullable: true
+          },
+          employmentStartDate: {
+            type: 'string',
+            format: 'date',
+            nullable: true
+          }
+        }
+      },
+      CompanySettingsWrite: {
+        type: 'object',
+        required: [
+          'name',
+          'timezone',
+          'currency',
+          'reportingCadenceDays'
+        ],
+        properties: {
+          name: {
+            type: 'string',
+            minLength: 2,
+            maxLength: 160
+          },
+          timezone: {
+            type: 'string',
+            maxLength: 80
+          },
+          currency: {
+            type: 'string',
+            minLength: 3,
+            maxLength: 3
+          },
+          reportingCadenceDays: {
+            type: 'integer',
+            minimum: 1,
+            maximum: 30
+          }
+        }
+      },
+      HealthPolicyWrite: {
+        type: 'object',
+        required: ['weights', 'thresholds'],
+        properties: {
+          weights: {
+            type: 'object',
+            required: [
+              'managerAssessment',
+              'milestoneDelivery',
+              'riskExposure',
+              'reportingFreshness'
+            ],
+            properties: {
+              managerAssessment: { type: 'integer', minimum: 0, maximum: 100 },
+              milestoneDelivery: { type: 'integer', minimum: 0, maximum: 100 },
+              riskExposure: { type: 'integer', minimum: 0, maximum: 100 },
+              reportingFreshness: { type: 'integer', minimum: 0, maximum: 100 }
+            }
+          },
+          thresholds: {
+            type: 'object',
+            required: ['green', 'amber'],
+            properties: {
+              green: { type: 'integer', minimum: 1, maximum: 99 },
+              amber: { type: 'integer', minimum: 1, maximum: 99 }
+            }
+          }
+        }
+      },
       ProjectWrite: {
         type: 'object',
         required: [

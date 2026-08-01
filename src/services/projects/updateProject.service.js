@@ -12,13 +12,13 @@ import {
   hasPermission,
   writeAuditLog
 } from './projectMutation.helpers'
+import { recalculateProjectHealth } from './projectHealth.helpers'
 
 const editableFields = [
   'clientId',
   'managerUserId',
   'name',
   'stage',
-  'overallHealth',
   'startDate',
   'targetEndDate',
   'status'
@@ -108,8 +108,9 @@ class UpdateProjectService extends BaseHandler {
 
       if (
         changes.overallHealth &&
-        changes.overallHealth !== project.overallHealth
+        changes.overallHealth !== project.managerHealthAssessment
       ) {
+        update.managerHealthAssessment = changes.overallHealth
         update.lastHealthUpdatedAt = new Date()
       }
 
@@ -143,6 +144,12 @@ class UpdateProjectService extends BaseHandler {
           entityType: 'project'
         },
         auth,
+        transaction
+      )
+
+      await recalculateProjectHealth(
+        project.id,
+        auth.organizationId,
         transaction
       )
 

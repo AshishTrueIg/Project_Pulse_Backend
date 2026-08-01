@@ -11,7 +11,6 @@ import {
 
 const DEFAULT_PAGE_SIZE = 20
 const MAX_PAGE_SIZE = 100
-const STALE_AFTER_DAYS = 7
 
 class ListProjectsService extends BaseHandler {
   async run () {
@@ -25,6 +24,9 @@ class ListProjectsService extends BaseHandler {
     } = this.args
     const parsedPage = Number(page)
     const parsedLimit = Math.min(Number(limit), MAX_PAGE_SIZE)
+    const reportingCadenceDays = Number(
+      this.context.currentUser.organization.reportingCadenceDays
+    ) || 7
     const scope = await getScopedProjectWhere(
       this.context.auth,
       this.dbTransaction
@@ -77,7 +79,7 @@ class ListProjectsService extends BaseHandler {
     ])
 
     const staleThreshold = new Date(
-      Date.now() - STALE_AFTER_DAYS * 24 * 60 * 60 * 1000
+      Date.now() - reportingCadenceDays * 24 * 60 * 60 * 1000
     )
 
     return {

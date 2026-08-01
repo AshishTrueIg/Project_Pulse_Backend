@@ -20,13 +20,13 @@ export const up = async queryInterface => {
     'SELECT id FROM organizations WHERE slug = :slug LIMIT 1',
     {
       replacements: {
-        slug: 'project-pulse-demo'
+        slug: 'my-company'
       }
     }
   )
 
   if (organizations.length === 0) {
-    throw new Error('Run the demo organization seeder before the super administrator seeder')
+    throw new Error('Run the bootstrap organization seeder before the super administrator seeder')
   }
 
   const organizationId = organizations[0].id

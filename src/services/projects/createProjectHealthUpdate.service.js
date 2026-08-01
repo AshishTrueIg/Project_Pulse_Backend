@@ -5,6 +5,7 @@ import {
   getProjectForWrite,
   writeAuditLog
 } from './projectMutation.helpers'
+import { recalculateProjectHealth } from './projectHealth.helpers'
 
 const optionalText = value => value?.trim() || null
 
@@ -41,12 +42,18 @@ class CreateProjectHealthUpdateService extends BaseHandler {
 
       await project.update(
         {
-          overallHealth: health,
+          managerHealthAssessment: health,
           lastHealthUpdatedAt: submittedAt
         },
         {
           transaction
         }
+      )
+
+      const calculatedHealth = await recalculateProjectHealth(
+        projectId,
+        auth.organizationId,
+        transaction
       )
 
       await writeAuditLog(
@@ -66,6 +73,8 @@ class CreateProjectHealthUpdateService extends BaseHandler {
       return {
         id: healthUpdate.id,
         projectId,
+        calculatedHealth: calculatedHealth?.status || 'not_assessed',
+        healthScore: calculatedHealth?.score || 0,
         submittedAt: submittedAt.toISOString()
       }
     })

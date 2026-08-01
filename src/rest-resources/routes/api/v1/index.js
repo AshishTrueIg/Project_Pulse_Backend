@@ -7,6 +7,7 @@ import financialsRoutes from './financials.routes'
 import healthRoutes from './health.routes'
 import peopleRoutes from './people.routes'
 import projectsRoutes from './projects.routes'
+import settingsRoutes from './settings.routes'
 
 const router = Router()
 
@@ -17,5 +18,6 @@ router.use('/financials', financialsRoutes)
 router.use('/health', healthRoutes)
 router.use('/people', peopleRoutes)
 router.use('/projects', projectsRoutes)
+router.use('/settings', settingsRoutes)
 
 export default router

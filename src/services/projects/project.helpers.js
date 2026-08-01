@@ -15,13 +15,6 @@ const ACTIVE_RISK_STATUSES = new Set(['open', 'mitigating'])
 const FULL_PROJECT_READ_PERMISSIONS = new Set(['*', 'projects:read'])
 const ASSIGNED_PROJECT_READ_PERMISSION = 'projects:read:assigned'
 
-const healthScoreByStatus = {
-  green: 84,
-  amber: 62,
-  red: 34,
-  not_assessed: 0
-}
-
 const labelAcronyms = {
   api: 'API',
   mvp: 'MVP',
@@ -212,6 +205,10 @@ const serializeProjectListItem = project => {
     stage: project.stage,
     stageLabel: formatLabel(project.stage),
     health: project.overallHealth,
+    healthScore: Number(project.healthScore || 0),
+    managerHealthAssessment:
+      project.managerHealthAssessment || 'not_assessed',
+    healthBreakdown: project.healthBreakdown || null,
     status: project.status,
     startDate: project.startDate,
     targetEndDate: project.targetEndDate,
@@ -270,7 +267,6 @@ const serializeProjectDetail = project => {
       initials: getInitials(project.manager.fullName),
       jobTitle: project.manager.jobTitle
     },
-    healthScore: healthScoreByStatus[project.overallHealth] || 0,
     delivery: {
       completedMilestones: completedMilestones.length,
       totalMilestones: project.milestones.length,

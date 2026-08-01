@@ -11,6 +11,16 @@ class GetPeopleOptionsService extends BaseHandler {
           status: 'active'
         },
         attributes: ['id', 'fullName', 'email', 'jobTitle'],
+        include: [
+          {
+            model: Role,
+            as: 'roles',
+            attributes: ['id', 'name'],
+            through: {
+              attributes: []
+            }
+          }
+        ],
         order: [['fullName', 'ASC']],
         transaction: this.dbTransaction
       }),
@@ -34,9 +44,16 @@ class GetPeopleOptionsService extends BaseHandler {
     ])
 
     return {
-      managers,
+      managers: managers.filter(user =>
+        user.roles.some(role =>
+          ['owner', 'manager', 'team_lead'].includes(role.name)
+        )
+      ),
       projects,
       roles,
+      invitationRoles: roles.filter(role =>
+        ['manager', 'team_lead', 'employee'].includes(role.name)
+      ),
       statuses: ['active', 'inactive'],
       workloadSignals: [
         'unallocated',

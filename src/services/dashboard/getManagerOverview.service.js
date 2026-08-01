@@ -1,13 +1,6 @@
 import { Client, Milestone, Project, ProjectAssignment, Risk, User } from '@src/db/models'
 import BaseHandler from '@src/libs/baseHandler'
 
-const HEALTH_SCORE = {
-  green: 100,
-  amber: 60,
-  red: 25,
-  not_assessed: 0
-}
-
 const ACTIVE_RISK_STATUSES = new Set(['open', 'mitigating'])
 const COMPLETE_MILESTONE_STATUSES = new Set(['accepted', 'completed'])
 
@@ -80,7 +73,12 @@ class GetManagerOverviewService extends BaseHandler {
     })
 
     const now = new Date()
-    const reportingThreshold = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+    const reportingCadenceDays = Number(
+      this.context.currentUser.organization.reportingCadenceDays
+    ) || 7
+    const reportingThreshold = new Date(
+      now.getTime() - reportingCadenceDays * 24 * 60 * 60 * 1000
+    )
     const uniqueMemberIds = new Set()
     const healthDistribution = {
       green: 0,
@@ -153,7 +151,7 @@ class GetManagerOverviewService extends BaseHandler {
       ? null
       : Math.round(
         projects.reduce(
-          (total, project) => total + (HEALTH_SCORE[project.overallHealth] || 0),
+          (total, project) => total + Number(project.healthScore || 0),
           0
         ) / projects.length
       )
@@ -190,6 +188,9 @@ class GetManagerOverviewService extends BaseHandler {
           stage: project.stage,
           stageLabel: formatStage(project.stage),
           health: project.overallHealth,
+          healthScore: Number(project.healthScore || 0),
+          managerHealthAssessment:
+            project.managerHealthAssessment || 'not_assessed',
           progress,
           acceptedMilestones,
           totalMilestones: project.milestones.length,

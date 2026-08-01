@@ -27,6 +27,11 @@ const defineOrganization = (sequelize, DataTypes) =>
       reportingCadenceDays: {
         type: DataTypes.INTEGER,
         allowNull: false
+      },
+      healthPolicy: {
+        type: DataTypes.JSONB,
+        allowNull: false,
+        defaultValue: {}
       }
     },
     {
