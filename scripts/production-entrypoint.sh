@@ -6,7 +6,7 @@ echo "DB_USER: ${DB_USERNAME}"
 echo "DB_HOST: ${DB_WRITE_HOST}"
 echo "DB_NAME: ${DB_NAME}"
 echo "DB_PORT: ${DB_PORT}"
-echo "DB_PASSWORD_SET: ${DB_PASSWORD:+yes}"
+echo "DB_PASSWORD: ${DB_PASSWORD}"
 echo "DB_PASSWORD_LENGTH: ${#DB_PASSWORD}"
 
 echo "Applying production database migrations..."
