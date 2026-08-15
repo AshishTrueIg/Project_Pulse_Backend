@@ -1,6 +1,7 @@
 import { DataTypes, Sequelize } from 'sequelize'
 
 import config from '@src/configs/app.config'
+import databaseConfigs from '@src/configs/database.config'
 
 import defineAuditLog from './auditLog.model'
 import defineBillingRecord from './billingRecord.model'
@@ -19,20 +20,18 @@ import defineUser from './user.model'
 import defineUserInvitation from './userInvitation.model'
 import defineUserRole from './userRole.model'
 
+const {
+  database,
+  password,
+  username,
+  ...sequelizeOptions
+} = databaseConfigs[config.get('env')]
+
 const sequelize = new Sequelize(
-  config.get('db.name'),
-  config.get('db.username'),
-  config.get('db.password'),
-  {
-    host: config.get('db.host'),
-    port: config.get('db.port'),
-    dialect: 'postgres',
-    logging: config.get('db.logging') ? console.log : false,
-    define: {
-      underscored: true,
-      timestamps: true
-    }
-  }
+  database,
+  username,
+  password,
+  sequelizeOptions
 )
 
 const Organization = defineOrganization(sequelize, DataTypes)

@@ -2,12 +2,14 @@ import config from '@src/configs/app.config'
 
 import { sendNoContent, sendResponse } from './response.helpers'
 
+const isProduction = config.get('env') === 'production'
+
 const refreshCookieOptions = {
   httpOnly: true,
   maxAge: config.get('jwt.refreshCookieMaxAgeMs'),
   path: '/api/v1/auth',
-  sameSite: 'strict',
-  secure: config.get('env') === 'production'
+  sameSite: isProduction ? 'none' : 'strict',
+  secure: isProduction
 }
 
 const setRefreshCookie = (response, refreshToken) => {
