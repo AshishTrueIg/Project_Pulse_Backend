@@ -66,6 +66,11 @@ const config = convict({
       format: Boolean,
       default: false,
       env: 'DB_LOGGING'
+    },
+    ssl: {
+      format: Boolean,
+      default: process.env.NODE_ENV === 'production',
+      env: 'DB_SSL'
     }
   },
   jwt: {

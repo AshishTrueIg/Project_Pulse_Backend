@@ -22,12 +22,13 @@ class ListProjectFeedbackService extends BaseHandler {
       'feedback:write',
       'feedback:write:assigned'
     )
+    const canReadAll = hasPermission(auth, 'feedback:read')
     const where = {
       organizationId: auth.organizationId,
       projectId
     }
 
-    if (!canManage) {
+    if (!canManage && !canReadAll) {
       where.subjectUserId = auth.userId
       where.visibility = 'employee_and_managers'
       where.status = {

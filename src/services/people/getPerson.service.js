@@ -59,6 +59,7 @@ class GetPersonService extends BaseHandler {
       auth,
       'feedback:write'
     )
+    const canReadAllFeedback = hasPermission(auth, 'feedback:read')
     const canManageAssignedFeedback =
       !canManageAllFeedback &&
       hasPermission(auth, 'feedback:write:assigned')
@@ -79,14 +80,14 @@ class GetPersonService extends BaseHandler {
       )
 
       feedbackWhere.projectId = projectScope.id
-    } else if (!canManageFeedback) {
+    } else if (!canManageFeedback && !canReadAllFeedback) {
       feedbackWhere.visibility = 'employee_and_managers'
       feedbackWhere.subjectUserId = auth.userId
     }
 
     let feedback = []
 
-    if (person.id === auth.userId || canManageFeedback) {
+    if (person.id === auth.userId || canManageFeedback || canReadAllFeedback) {
       feedback = await ProjectFeedback.findAll({
         where: feedbackWhere,
         include: [

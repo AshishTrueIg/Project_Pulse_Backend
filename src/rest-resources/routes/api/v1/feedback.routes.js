@@ -13,6 +13,7 @@ const canManageFeedback = authorize(
   'feedback:write:assigned'
 )
 const canReadFeedback = authorize(
+  'feedback:read',
   'feedback:write',
   'feedback:write:assigned',
   'feedback:read:own'

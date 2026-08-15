@@ -24,11 +24,15 @@ export default {
   staging: databaseConfig,
   production: {
     ...databaseConfig,
-    dialectOptions: {
-      ssl: {
-        require: true,
-        rejectUnauthorized: false
-      }
-    }
+    ...(config.get('db.ssl')
+      ? {
+          dialectOptions: {
+            ssl: {
+              require: true,
+              rejectUnauthorized: false
+            }
+          }
+        }
+      : {})
   }
 }

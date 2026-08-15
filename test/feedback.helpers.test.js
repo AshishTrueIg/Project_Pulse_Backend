@@ -1,5 +1,6 @@
 import {
   calculateOverallRating,
+  getFeedbackScopeWhere,
   requirePublishedRatings
 } from '@src/services/feedback/feedback.helpers'
 
@@ -28,5 +29,16 @@ describe('feedback helpers', () => {
         ownershipRating: 5
       })
     ).toThrow('Complete all four ratings')
+  })
+
+  test('grants organization-wide scope to a read-only feedback viewer', async () => {
+    await expect(
+      getFeedbackScopeWhere({
+        organizationId: 'demo-organization',
+        permissions: ['feedback:read']
+      })
+    ).resolves.toEqual({
+      organizationId: 'demo-organization'
+    })
   })
 })

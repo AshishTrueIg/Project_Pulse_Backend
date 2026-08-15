@@ -12,6 +12,24 @@ const common = {
   logging: process.env.DB_LOGGING === 'true'
 }
 
+const sslEnabled = process.env.DB_SSL == null
+  ? process.env.NODE_ENV === 'production'
+  : process.env.DB_SSL === 'true'
+
+const withSsl = configuration => ({
+  ...configuration,
+  ...(sslEnabled
+    ? {
+        dialectOptions: {
+          ssl: {
+            require: true,
+            rejectUnauthorized: false
+          }
+        }
+      }
+    : {})
+})
+
 module.exports = {
   development: common,
   test: {
@@ -20,13 +38,5 @@ module.exports = {
     logging: false
   },
   staging: common,
-  production: {
-    ...common,
-    dialectOptions: {
-      ssl: {
-        require: true,
-        rejectUnauthorized: false
-      }
-    }
-  }
+  production: withSsl(common)
 }

@@ -1,20 +1,99 @@
 services:
   postgres:
     image: postgres:16-alpine
+    restart: unless-stopped
     environment:
-      POSTGRES_DB: project_management
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ${DB_NAME:-project_management}
+      POSTGRES_USER: ${DB_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
     ports:
-      - "5432:5432"
+      - "${POSTGRES_HOST_PORT:-5433}:5432"
     volumes:
       - project-management-postgres:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d project_management"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"
+        ]
       interval: 5s
       timeout: 5s
       retries: 10
+      start_period: 5s
+
+  api:
+    build:
+      context: .
+      target: development
+    restart: unless-stopped
+    init: true
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: development
+      DB_WRITE_HOST: postgres
+      DB_PORT: 5432
+    command: ["sh", "./scripts/docker-entrypoint.sh"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "${API_HOST_PORT:-4001}:${PORT:-4001}"
+    volumes:
+      - ./src:/app/src
+      - ./test:/app/test
+      - ./index.js:/app/index.js
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:' + process.env.PORT + '/api/v1/health').then(response => { if (!response.ok) process.exit(1) }).catch(() => process.exit(1))"
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 25s
+    stop_grace_period: 15s
+
+  frontend:
+    build:
+      context: ../project-management-frontend
+      target: development
+    restart: unless-stopped
+    init: true
+    environment:
+      NODE_ENV: development
+      NEXT_TELEMETRY_DISABLED: "1"
+      NEXT_PUBLIC_API_BASE_URL: http://localhost:${API_HOST_PORT:-4001}/api/v1
+      NEXT_PUBLIC_DEMO_MODE: ${DEMO_MODE:-false}
+      NEXT_PUBLIC_DEMO_EMAIL: ${DEMO_ACCOUNT_EMAIL:-demo@projectpulse.app}
+      NEXT_PUBLIC_DEMO_PASSWORD: ${DEMO_ACCOUNT_PASSWORD:-Demo@1234}
+      WATCHPACK_POLLING: "true"
+    command: ["npm", "run", "dev", "--", "-H", "0.0.0.0"]
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "${FRONTEND_HOST_PORT:-3000}:3000"
+    volumes:
+      - ../project-management-frontend/src:/app/src
+      - ../project-management-frontend/jsconfig.json:/app/jsconfig.json
+      - ../project-management-frontend/next.config.mjs:/app/next.config.mjs
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/').then(response => { if (!response.ok) process.exit(1) }).catch(() => process.exit(1))"
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+    stop_grace_period: 15s
 
 volumes:
   project-management-postgres:
-

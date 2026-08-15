@@ -120,6 +120,12 @@ const requirePublishedRatings = values => {
 }
 
 const getFeedbackScopeWhere = async (auth, transaction) => {
+  if (hasPermission(auth, 'feedback:read')) {
+    return {
+      organizationId: auth.organizationId
+    }
+  }
+
   if (hasPermission(auth, 'feedback:write')) {
     return {
       organizationId: auth.organizationId
